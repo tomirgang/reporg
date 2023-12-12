@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="de">
+    <title>RepOrg</title>
+    <subtitle>RepOrg ist ein Werkzeug zur Organisation von Repair-Cafes.</subtitle>
+    <link href="https://reporg.de/atom.xml" rel="self" type="application/atom+xml"/>
+    <link href="https://reporg.de"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2021-05-01T19:30:00+00:00</updated>
+    <id>https://reporg.de/atom.xml</id>
+    <entry xml:lang="de">
+        <title>FAQ</title>
+        <published>2021-05-01T19:30:00+00:00</published>
+        <updated>2021-05-01T19:30:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/help/faq/" type="text/html"/>
+        <id>https://reporg.de/docs/help/faq/</id>
+        
+        <content type="html">&lt;h2 id=&quot;was-ist-reporg&quot;&gt;Was ist RepOrg?&lt;&#x2F;h2&gt;
+&lt;p&gt;RepOrg ist ein Werkzeug zur Organisation und Durchführung von Repair-Cafes.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;fragen-zu-reporg&quot;&gt;Fragen zu RepOrg?&lt;&#x2F;h2&gt;
+&lt;p&gt;Schreib eine E-mail an &lt;em&gt;Tom&lt;&#x2F;em&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;mailto:me@tomirgang.de&quot;&gt;me@tomirgang.de&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Verhaltenskodex</title>
+        <published>2021-05-01T18:20:00+00:00</published>
+        <updated>2021-05-01T18:20:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/contributing/code-of-conduct/" type="text/html"/>
+        <id>https://reporg.de/docs/contributing/code-of-conduct/</id>
+        
+        <content type="html">&lt;h1 id=&quot;vereinbarung-uber-verhaltenskodex-fur-mitwirkende&quot;&gt;Vereinbarung über Verhaltenskodex für Mitwirkende&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;unsere-verpflichtung&quot;&gt;Unsere Verpflichtung&lt;&#x2F;h2&gt;
+&lt;p&gt;Wir als Mitglieder, Teilnehmende und Verantwortliche unserer Gemeinschaft
+verpflichten uns, allen Teilnehmenden an dem Projekt und unserer Gemeinschaft
+eine belästigungsfreie Beteiligung, unabhängig von Alter, Körpergröße,
+Behinderung, ethnischer Zuordnung, Geschlechtermerkmalen, -identität und
+-ausdruck, Grad der Erfahrung, Bildung, sozialem Status, Nationalität,
+persönlicher Erscheinung, Rasse, Kaste, Hautfarbe, Religion oder sexueller
+Identität und Orientierung zu ermöglichen.&lt;&#x2F;p&gt;
+&lt;p&gt;Wir verpflichten uns, in einer Weise zu handeln und zu interagieren, die zu
+einer offenen, einladenden, vielfältigen, inklusiven und gesunden Gemeinschaft
+beiträgt.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;unsere-standards&quot;&gt;Unsere Standards&lt;&#x2F;h2&gt;
+&lt;p&gt;Beispiele für Verhaltensweisen, die zu einem positiven Umfeld für unsere
+Gemeinschaft beitragen, sind:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Einfühlungsvermögen und Freundlichkeit gegenüber anderen Menschen zeigen&lt;&#x2F;li&gt;
+&lt;li&gt;Unterschiedliche Meinungen, Standpunkte und Erfahrungen respektieren&lt;&#x2F;li&gt;
+&lt;li&gt;Konstruktives Feedback geben und würdevoll annehmen&lt;&#x2F;li&gt;
+&lt;li&gt;Verantwortung übernehmen und uns bei denjenigen entschuldigen, die von
+unseren Fehlern betroffen sind, und aus den Erfahrungen lernen&lt;&#x2F;li&gt;
+&lt;li&gt;Konzentration auf das, was nicht nur für uns als Individuen, sondern für die
+gesamte Gemeinschaft das Beste ist&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Beispiele für inakzeptables Verhalten sind:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Die Verwendung sexualisierter Sprache, Bilder oder Symbolik sowie
+unerwünschte Versuche sexueller Annäherung&lt;&#x2F;li&gt;
+&lt;li&gt;Beleidigende oder abwertende Kommentare, persönliche oder politische Angriffe
+und Trollen&lt;&#x2F;li&gt;
+&lt;li&gt;Öffentliche oder private Belästigungen&lt;&#x2F;li&gt;
+&lt;li&gt;Das Veröffentlichen von privaten Informationen Anderer, wie zum Beispiel
+physische oder elektronische Adressen, ohne deren ausdrückliche Erlaubnis&lt;&#x2F;li&gt;
+&lt;li&gt;Anderes Verhalten, welches in einem professionellen Umfeld begründet als
+unangemessen betrachtet werden kann&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;verantwortlichkeiten-bei-der-durchsetzung&quot;&gt;Verantwortlichkeiten bei der Durchsetzung&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Gemeinschaftsleitung ist verantwortlich dafür, unsere Standards für ein
+akzeptables Verhalten klarzustellen und wird angemessen und fair
+korrigierende Maßnahmen ergreifen um auf jegliches Verhalten, das sie für
+unangemessen, bedrohlich oder beleidigend hält, zu reagieren.&lt;&#x2F;p&gt;
+&lt;p&gt;Die Gemeinschaftsleitung hat das Recht und die Verantwortung, Kommentare,
+Commits, Code, Wiki-Bearbeitungen, Support-Tickets und andere Beiträge, die
+nicht mit diesem Verhaltenskodex vereinbar sind, zu entfernen, zu bearbeiten
+oder abzulehnen, und wird die Gründe für eine Mäßigung mitteilen, wenn es
+angebracht ist.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;geltungsbereich&quot;&gt;Geltungsbereich&lt;&#x2F;h2&gt;
+&lt;p&gt;Dieser Verhaltenskodex gilt für alle Gemeinschaftsbereiche und gilt auch, wenn
+eine Einzelperson die Gemeinschaft offiziell in öffentlichen Bereichen
+vertritt. Beispiele für die Repräsentation unserer Gemeinschaft sind die
+Verwendung einer offiziellen E-Mail-Adresse, das Posten über ein offizielles
+Social-Media-Konto oder das Auftreten als ernannte Vertretung bei einer Online-
+oder Offline-Veranstaltung.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;durchsetzung&quot;&gt;Durchsetzung&lt;&#x2F;h2&gt;
+&lt;p&gt;Fälle von missbräuchlichem, belästigendem oder anderweitig inakzeptablem
+Verhalten können unter [KONTAKTMETHODE EINFÜGEN] der für die Durchsetzung
+zuständigen Gemeinschaftsleitung gemeldet werden. Alle Beschwerden werden
+zeitnah und fair geprüft und ermittelt.&lt;&#x2F;p&gt;
+&lt;p&gt;Die gesamte Gemeinschaftsleitung ist verpflichtet, die Privatsphäre und die
+Sicherheit derjenigen, die einen Vorfall gemeldet haben, zu respektieren.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;durchsetzungsrichtlinien&quot;&gt;Durchsetzungsrichtlinien&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Gemeinschaftsleitung wird sich bei der Bestimmung der Konsequenzen für
+jede Handlung, die ihrer Ansicht nach gegen diesen Verhaltenskodex verstößt, an
+diese Richtlinien über die Auswirkungen in der Gemeinschaft halten:&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;1-berichtigung&quot;&gt;1. Berichtigung&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;strong&gt;Auswirkungen in der Gemeinschaft&lt;&#x2F;strong&gt;: Verwendung unangemessener Sprache oder
+anderes Verhalten, das in der Gemeinschaft als unprofessionell oder
+unwillkommen gilt.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Folge&lt;&#x2F;strong&gt;: Eine private, schriftliche Verwarnung der Gemeinschaftsleitung,
+die Klarheit über die Art des Verstoßes und eine Erklärung dafür bietet, warum
+das Verhalten unangemessen war. Eine öffentliche Entschuldigung kann verlangt
+werden.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;2-verwarnung&quot;&gt;2. Verwarnung&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;strong&gt;Auswirkungen in der Gemeinschaft&lt;&#x2F;strong&gt;: Eine Verletzung durch einen einzelnen
+Vorfall oder eine Reihe von Handlungen.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Folge&lt;&#x2F;strong&gt;: Eine Warnung mit Konsequenzen bei wiederholtem Fehlverhalten. Keine
+Interaktion mit den beteiligten Personen, einschließlich unaufgeforderter
+Interaktion mit denjenigen, die den Verhaltenskodex durchsetzen, für einen
+bestimmten Zeitraum. Dazu gehört die Vermeidung von Interaktionen in
+Gemeinschaftsräumen sowie in externen Kanälen wie sozialen Medien. Ein Verstoß
+gegen diese Bedingungen kann zu einem vorübergehenden oder dauerhaften Verbot
+führen.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;3-vorubergehender-ausschluss&quot;&gt;3. Vorübergehender Ausschluss&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;strong&gt;Auswirkungen in der Gemeinschaft&lt;&#x2F;strong&gt;: Eine schwerwiegende Verletzung von
+Gemeinschaftsstandards, einschließlich anhaltend unangemessenen Verhaltens.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Folge&lt;&#x2F;strong&gt;: Ein zeitlich begrenztes Verbot jeglicher Art von Interaktion oder
+öffentlicher Kommunikation mit der Gemeinschaft. Während dieses Zeitraums ist
+keine öffentliche oder private Interaktion mit den beteiligten Personen erlaubt.
+Auch keine unaufgeforderte Interaktion mit denjenigen, die den Verhaltenskodex
+durchsetzen. Ein Verstoß gegen diese Bedingungen kann zu einem dauerhaften
+Verbot führen.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;4-dauerhafter-ausschluss&quot;&gt;4. Dauerhafter Ausschluss&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;strong&gt;Auswirkungen in der Gemeinschaft&lt;&#x2F;strong&gt;: Aufzeigen eines Musters von Verletzungen
+der Gemeinschaftsstandards, einschließlich anhaltend unangemessenen Verhaltens,
+Belästigung einer Person oder Aggression gegen oder Herabsetzung von Gruppen
+von Personen.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Folge&lt;&#x2F;strong&gt;: Ein dauerhaftes Verbot jeglicher Art von öffentlicher Interaktion
+innerhalb der Gemeinschaft.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;bezug&quot;&gt;Bezug&lt;&#x2F;h2&gt;
+&lt;p&gt;Dieser Verhaltenskodex basiert auf dem &lt;a href=&quot;https:&#x2F;&#x2F;www.contributor-covenant.org&quot;&gt;Contributor Covenant&lt;&#x2F;a&gt;,
+Version 2.1, verfügbar unter
+&lt;a href=&quot;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;version&#x2F;2&#x2F;1&#x2F;code_of_conduct.html&quot;&gt;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;version&#x2F;2&#x2F;1&#x2F;code_of_conduct.html&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Community Impact Guidelines wurden von
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;mozilla&#x2F;inclusion&quot;&gt;Mozillas Code of Conduct Enforcement Ladder&lt;&#x2F;a&gt; inspiriert.&lt;&#x2F;p&gt;
+&lt;p&gt;Antworten auf häufig gestellte Fragen zu diesem Verhaltenskodex finden Sie in
+den häufig gestellten Fragen unter &lt;a href=&quot;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;faq&quot;&gt;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;faq&lt;&#x2F;a&gt;
+(in Englisch). Andere Übersetzungen sind verfügbar unter
+&lt;a href=&quot;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;translations&quot;&gt;https:&#x2F;&#x2F;www.contributor-covenant.org&#x2F;translations&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Wie kann ich beitragen?</title>
+        <published>2021-05-01T18:10:00+00:00</published>
+        <updated>2021-05-01T18:10:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/contributing/how-to-contribute/" type="text/html"/>
+        <id>https://reporg.de/docs/contributing/how-to-contribute/</id>
+        
+        <content type="html">&lt;p&gt;👉 Lesen Sie unbedingt den &lt;a href=&quot;..&#x2F;code-of-conduct&#x2F;&quot;&gt;Code of Conduct&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;zur-dokumentation-beitragen&quot;&gt;Zur Dokumentation beitragen&lt;&#x2F;h2&gt;
+&lt;p&gt;👉 Der RepOrg Code lebt im &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&quot;&gt;&lt;code&gt;RepOrg&lt;&#x2F;code&gt; Repository&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;einen-fehler-melden&quot;&gt;Einen Fehler melden&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&#x2F;issues&#x2F;new&quot;&gt;Fehler melden&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&#x2F;issues&#x2F;new&quot;&gt;Funktion anfragen&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;dokumentation-verbessern&quot;&gt;Dokumentation verbessern&lt;&#x2F;h2&gt;
+&lt;p&gt;👉 Die Dokumentation ist in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&#x2F;tree&#x2F;main&#x2F;zola&quot;&gt;&lt;code&gt;.&#x2F;zola&#x2F;&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+im &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&quot;&gt;&lt;code&gt;RepOrg&lt;&#x2F;code&gt; Repository&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Projekt RepOrg</title>
+        <published>2021-05-01T09:19:42+00:00</published>
+        <updated>2021-05-01T09:19:42+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/blog/projekt-reporg/" type="text/html"/>
+        <id>https://reporg.de/blog/projekt-reporg/</id>
+        
+        <content type="html">&lt;p&gt;Das Ziel des Projekt RepOrg ist es ein Werkzeug zu entwickeln das Organisatoren, Reparatuere und Gerätebeseitzer bei der Anmeldung und beim Ablauf von Repair-Cafes unterstützt.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Schnellstart</title>
+        <published>2021-05-01T08:20:00+00:00</published>
+        <updated>2021-05-01T08:20:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/getting-started/quick-start/" type="text/html"/>
+        <id>https://reporg.de/docs/getting-started/quick-start/</id>
+        
+        <content type="html">&lt;h2 id=&quot;anforderungen&quot;&gt;Anforderungen&lt;&#x2F;h2&gt;
+&lt;h2 id=&quot;installation&quot;&gt;Installation&lt;&#x2F;h2&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Einführung</title>
+        <published>2021-05-01T08:00:00+00:00</published>
+        <updated>2021-05-01T08:00:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/getting-started/introduction/" type="text/html"/>
+        <id>https://reporg.de/docs/getting-started/introduction/</id>
+        
+        <content type="html">&lt;h2 id=&quot;schnellstart&quot;&gt;Schnellstart&lt;&#x2F;h2&gt;
+&lt;p&gt;Eine einseitige Zusammenfassung wie man RepOrg installieren und verwenden kann. &lt;a href=&quot;..&#x2F;quick-start&#x2F;&quot;&gt;Schnellstart →&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;mitwirken&quot;&gt;Mitwirken&lt;&#x2F;h2&gt;
+&lt;p&gt;Finden Sie heraus, wie Sie zu Reporg beitragen können. &lt;a href=&quot;..&#x2F;..&#x2F;contributing&#x2F;how-to-contribute&#x2F;&quot;&gt;Beitragen →&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;helfen&quot;&gt;Helfen&lt;&#x2F;h2&gt;
+&lt;p&gt;Holen Sie sich Hilfe in den FAQs. &lt;a href=&quot;..&#x2F;..&#x2F;help&#x2F;faq&#x2F;&quot;&gt;Hilfe →&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Tom</title>
+        <published>2021-04-01T08:50:45+00:00</published>
+        <updated>2021-04-01T08:50:45+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/authors/tom/" type="text/html"/>
+        <id>https://reporg.de/authors/tom/</id>
+        
+        <content type="html">&lt;p&gt;Initiator von RepOrg.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&quot;&gt;@tom&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+</feed>
