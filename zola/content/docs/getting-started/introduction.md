@@ -20,7 +20,7 @@ Eine einseitige Zusammenfassung wie man RepOrg installieren und verwenden kann. 
 
 ## Mitwirken
 
-Finden Sie heraus, wie Sie zu Reporg beitragen können. [Beitragen →](../../contributing/how-to-contribute/)
+Finden Sie heraus, wie Sie zu RepOrg beitragen können. [Beitragen →](../../contributing/how-to-contribute/)
 
 ## Helfen
 
