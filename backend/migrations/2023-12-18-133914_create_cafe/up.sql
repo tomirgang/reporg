@@ -1,0 +1,7 @@
+-- Your SQL goes here
+CREATE TABLE cafe (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  location VARCHAR NOT NULL,
+  address VARCHAR NOT NULL,
+  date DATETIME NOT NULL
+)

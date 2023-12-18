@@ -1,0 +1,7 @@
+-- Your SQL goes here
+CREATE TABLE state (
+  id INT NOT NULL PRIMARY KEY,
+  name VARCHAR(30) NOT NULL,
+  description VARCHAR NOT NULL,
+  final BOOLEAN NOT NULL DEFAULT 0
+)
