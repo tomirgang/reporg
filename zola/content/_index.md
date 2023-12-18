@@ -25,7 +25,27 @@ url = "/blog/"
 weight = 20
 
 [[extra.list]]
-title = "Im Aufbau"
-content = 'RepOrg steht noch ganz am Anfang der Entwickung.'
+title = "Geräteanmeldungen"
+content = 'RepOrg unterstützt bei der Anmeldung von Geräten.'
+
+[[extra.list]]
+title = "Repair-Cafés"
+content = 'RepOrg bei der Ankündigung von Repair-Cafés.'
+
+[[extra.list]]
+title = "Termine"
+content = 'RepOrg unterstützt bei der Organisation von Reparatur-Terminen.'
+
+[[extra.list]]
+title = "Geräte"
+content = 'RepOrg unterstützt bei Verwaltung der angemeldeten Geräte.'
+
+[[extra.list]]
+title = "Helfer"
+content = 'RepOrg erlaubt es Helfern die angemeldeten Geräte zu sehen und Termine zu bestätigen.'
+
+[[extra.list]]
+title = "Organisation"
+content = 'RepOrg macht die Organisation von Repair-Cafés einfach!'
 
 +++

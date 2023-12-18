@@ -35,6 +35,13 @@
         <lastmod>2021-05-01T18:10:00+00:00</lastmod>
     </url>
     <url>
+        <loc>https://reporg.de/docs/developer/</loc>
+    </url>
+    <url>
+        <loc>https://reporg.de/docs/developer/datamodel/</loc>
+        <lastmod>2021-05-01T08:20:00+00:00</lastmod>
+    </url>
+    <url>
         <loc>https://reporg.de/docs/getting-started/</loc>
     </url>
     <url>
@@ -51,6 +58,13 @@
     <url>
         <loc>https://reporg.de/docs/help/faq/</loc>
         <lastmod>2021-05-01T19:30:00+00:00</lastmod>
+    </url>
+    <url>
+        <loc>https://reporg.de/docs/user/</loc>
+    </url>
+    <url>
+        <loc>https://reporg.de/docs/user/user/</loc>
+        <lastmod>2021-05-01T08:20:00+00:00</lastmod>
     </url>
     <url>
         <loc>https://reporg.de/privacy-policy/</loc>

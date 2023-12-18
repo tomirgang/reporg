@@ -46,9 +46,9 @@
 
 	
 
-<title>Wie kann ich beitragen? _ RepOrg</title>
-<meta name="description" content="Tragen Sie zu RepOrg bei, verbessern Sie die Dokumentation oder senden Sie Pull-Requests.">
-<link rel="canonical" href="https://reporg.de/docs/contributing/how-to-contribute/">
+<title>Datenmodel _ RepOrg</title>
+<meta name="description" content="Das RepOrg Datenmodel.">
+<link rel="canonical" href="https://reporg.de/docs/developer/datamodel/">
 
 
 
@@ -105,17 +105,11 @@
           {
             "@type": "ListItem",
             "position":  3 ,
-            "name": "Contributing",
-            "item": "https://reporg.de/docs/contributing/"
+            "name": "Developer",
+            "item": "https://reporg.de/docs/developer/"
           },
         
       
-        
-        
-        
-        
-        
-        
         
         
         
@@ -129,8 +123,8 @@
           {
             "@type": "ListItem",
             "position":  4 ,
-            "name": "How To Contribute",
-            "item": "https://reporg.de/docs/contributing/how-to-contribute/"
+            "name": "Datamodel",
+            "item": "https://reporg.de/docs/developer/datamodel/"
           },
         
       
@@ -247,7 +241,7 @@
 							<h3>Beitragen</h3>
 							<ul class="list-unstyled">
 							                           
-									<li><a class="docs-link active" href="https://reporg.de/docs/contributing/how-to-contribute/">Wie kann ich beitragen?</a></li>
+									<li><a class="docs-link" href="https://reporg.de/docs/contributing/how-to-contribute/">Wie kann ich beitragen?</a></li>
 							                           
 									<li><a class="docs-link" href="https://reporg.de/docs/contributing/code-of-conduct/">Verhaltenskodex</a></li>
 							
@@ -269,7 +263,7 @@
 							<h3>Enttwickler</h3>
 							<ul class="list-unstyled">
 							                           
-									<li><a class="docs-link" href="https://reporg.de/docs/developer/datamodel/">Datenmodel</a></li>
+									<li><a class="docs-link active" href="https://reporg.de/docs/developer/datamodel/">Datenmodel</a></li>
 							
 					</ul>
 					
@@ -296,16 +290,36 @@
   			<nav id="TableOfContents">
   					<ul>
   							
-  							<li><a href="https://reporg.de/docs/contributing/how-to-contribute/#zur-dokumentation-beitragen">Zur Dokumentation beitragen</a></li>
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#repair-cafes-cafe">Repair-Cafes (cafe)</a></li>
+  							
+  							
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#gerate-device">Geräte (device)</a></li>
+  							
+  							
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#gast-guest">Gast (guest)</a></li>
+  							
+  							
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#helfer-supporter">Helfer (supporter)</a></li>
+  							
+  							
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#hilfsobjekte">Hilfsobjekte</a></li>
   							
   									<ul>
   											
-  											<li><a href="https://reporg.de/docs/contributing/how-to-contribute/#einen-fehler-melden">Einen Fehler melden</a></li>
+  											<li><a href="https://reporg.de/docs/developer/datamodel/#benutzer-user">Benutzer (user)</a></li>
+  											
+  											<li><a href="https://reporg.de/docs/developer/datamodel/#termin-meeting">Termin (meeting)</a></li>
+  											
+  											<li><a href="https://reporg.de/docs/developer/datamodel/#nachricht-message">Nachricht (message)</a></li>
+  											
+  											<li><a href="https://reporg.de/docs/developer/datamodel/#status-state">Status (state)</a></li>
+  											
+  											<li><a href="https://reporg.de/docs/developer/datamodel/#datenmodel">Datenmodel</a></li>
   											
   									</ul>
   							
   							
-  							<li><a href="https://reporg.de/docs/contributing/how-to-contribute/#dokumentation-verbessern">Dokumentation verbessern</a></li>
+  							<li><a href="https://reporg.de/docs/developer/datamodel/#sql">SQL</a></li>
   							
   							
   					</ul>
@@ -315,23 +329,111 @@
   
 
       <main class="docs-content col-lg-11 col-xl-9">
-        <h1>Wie kann ich beitragen?</h1>
-        <p class="lead">Tragen Sie zu RepOrg bei, verbessern Sie die Dokumentation oder senden Sie Pull-Requests.</p>
-        <p>👉 Lesen Sie unbedingt den <a href="../code-of-conduct/">Code of Conduct</a>.</p>
-<h2 id="zur-dokumentation-beitragen">Zur Dokumentation beitragen</h2>
-<p>👉 Der RepOrg Code lebt im <a href="https://github.com/tomirgang/reporg"><code>RepOrg</code> Repository</a></p>
-<h3 id="einen-fehler-melden">Einen Fehler melden</h3>
+        <h1>Datenmodel</h1>
+        <p class="lead">Ein Überblick über das RepOrg Datenmodel.</p>
+        <p>RepOrg nimmt an dass alle verwalteten Geräteanmeldungen vor dem Repair-Cafe, z.B. über ein Web-Formular, erfolgen. Diese Geräteanmeldungen werden anschließend von den Organisatoren überprüft und Reparateuren zugeordnet.</p>
+<p>RepOrg modelliert die folgenden Objekte:</p>
 <ul>
-<li><a href="https://github.com/tomirgang/reporg/issues/new">Fehler melden</a></li>
-<li><a href="https://github.com/tomirgang/reporg/issues/new">Funktion anfragen</a></li>
+<li>cafe: Die Repair-Cafe Veranstaltungen.</li>
+<li>device: Die defekten Geräte die für ein Repair-Cafe angemeldet wurden.</li>
+<li>guest: Die Besitzer der defekten Geräte, die ein Repair-Cafe besuchen.</li>
+<li>supporter: Die Helfer die am Repair-Cafe teilnehmen um Gästen bei der Reparatur ihrer Geräte zu helfen.</li>
 </ul>
-<h2 id="dokumentation-verbessern">Dokumentation verbessern</h2>
-<p>👉 Die Dokumentation ist in <a href="https://github.com/tomirgang/reporg/tree/main/zola"><code>./zola/</code></a>
-im <a href="https://github.com/tomirgang/reporg"><code>RepOrg</code> Repository</a>.</p>
-
+<p>Zusätzlich gibt es die folgenden Hilfsobjekte:</p>
+<ul>
+<li>user: Die Benutzer regeln die Rechte im Web-Interface.</li>
+<li>meeting: Die Termine ordnen ein Gerät einem Repair-Cafe und einem Helfer zu.</li>
+<li>message: Die Kommunikation zu einem Gerät.</li>
+<li>state: Der Status einer Geräteanmeldung.</li>
+</ul>
+<p>Wir versuchen die Reparaturen möglichst erfolgreich zu gestalten, dazu ist es notwendig sicherzustellen dass für jedes Gerät ein geeigneter Helfer zur Verfügung steht, und dass eine Reparatur in gegebenen Zeitrahmen erfolgversprechend ist. Um dies zue gewährleiten erfolgt für jedes Gerät eine Eingangsüberprüfung. Ein Gerät kann folgenden Status haben:</p>
+<ul>
+<li>new: Neue, ungeprüfte Geräteanmeldung.</li>
+<li>questioned: In Rückfrage. Falls nicht genügend Informationen vorliegen, kontaktieren die Organisatoren den Gerätebesitzer um die notwendigen Informationen einzuholen.</li>
+<li>waiting: Gerät wurde angenommen und kann für ein Repair-Cafe geplant werden.</li>
+<li>rejected: Das Gerät wurde abgelehnt, da eine erfolgreiche Reparatur unwahrscheinlich ist.</li>
+<li>repaired: Das Gerät wurde repariert.</li>
+<li>follow_up: Das Gerät wurde teilweise Repariert, und ein zweiter Termin ist notwendig.</li>
+<li>broken: Der Reparatur-Versuch war erfolglos.</li>
+</ul>
+<h2 id="repair-cafes-cafe">Repair-Cafes (cafe)</h2>
+<p>Die Repair-Cafe Objekte haben die folgenden Eigenschaften:</p>
+<ul>
+<li>location: Der Ort an dem das Repair-Cafe stattfindet, als einfacher Text.</li>
+<li>address: Die Adresse an der das Repair-Cafe stattfindet, als einfacher Text.</li>
+<li>date: Das Datum an dem das Repair-Cafe stattfindet.</li>
+</ul>
+<h2 id="gerate-device">Geräte (device)</h2>
+<p>Die Geräte haben die folgenden Eigenschaften:</p>
+<ul>
+<li>date: Das Datum der Geräteanmeldung.</li>
+<li>device: Die Gerätebezeichnung, als einfacher Text.</li>
+<li>manufacturer: Der Gerätehersteller, als einfacher Text.</li>
+<li>issue: Die Fehlerbeschreibung, als formatierter Text.</li>
+<li>picture: Ein Foto des Gerätes.</li>
+<li>type_plate: Ein Foto des Typenschildes des Gerätes.</li>
+<li>confirmed: Boolesches Feld. True falls dem Gast bereits eine Anmeldebestätigung gesendet wurde.</li>
+<li>guest: Fremdschlüssel. Referenz zum Gerätebesitzer.</li>
+<li>state: Fremdschlüssel. Referenz zum Status der Geräteanmeldung.</li>
+</ul>
+<h2 id="gast-guest">Gast (guest)</h2>
+<p>Die Gäste haben die folgenden Eigenschaften:</p>
+<ul>
+<li>name: Der Name des Gastes, als einfacher Text.</li>
+<li>phone: Die Telefonnummer des Gastes, als einfacher Text.</li>
+<li>residence: Der Wohnort des Gastes, als einfacher Text.</li>
+<li>user: Fremdschlüssel. Referenz zum Benutzer Model. Jeder Gast bekommt einen Benutzerzugang, um seine Daten und die seiner Geräte zu verwalten.</li>
+</ul>
+<h2 id="helfer-supporter">Helfer (supporter)</h2>
+<p>Die Helfer haben die folgenden Eigenschaften:</p>
+<ul>
+<li>name: Der Name des Helfers, als einfacher Text.</li>
+<li>user: Fremdschlüssel. Referenz zum Benutzer Model.</li>
+</ul>
+<h2 id="hilfsobjekte">Hilfsobjekte</h2>
+<h3 id="benutzer-user">Benutzer (user)</h3>
+<p>Die Benutzer haben die folgenden Eigenschaften:</p>
+<ul>
+<li>mail: Die E-Mail-Adresse des Benutzers.</li>
+<li>notifications: Boolescher Wert. True bedeutet dass der Benutzer über Änderungen per E-Mail benachrichtigt werden möchte.</li>
+</ul>
+<h3 id="termin-meeting">Termin (meeting)</h3>
+<p>Die Termine haben die folgenden Eigenschaften:</p>
+<ul>
+<li>cafe: Fremdschlüssel. Referenz zum Repair-Cafe.</li>
+<li>supporter: Fremdschlüssel. Helfer der bei der Reparatur unterstützt.</li>
+<li>device: Fremdschlüssel. Das Gerät das repariert werden soll.</li>
+<li>time: Die Uhrzeit an der das Treffen stattfindet.</li>
+<li>confirmed: Boolescher Wert. True falls der Gast den Termin bestätigt hat.</li>
+</ul>
+<h3 id="nachricht-message">Nachricht (message)</h3>
+<p>Die Nachrichten haben die folgenden Eigenschaften:</p>
+<ul>
+<li>message: Inhalt der Nachricht, als formatierter Text.</li>
+<li>parent: Fremdschlüssel: Referenz zur vorherigen Nachricht in diesem Kommunikationsbaum.</li>
+<li>date: Das Datum an dem die Nachricht gesendet oder empfangen wurde.</li>
+<li>device: Fremdschlüssel. Referenz zum Gerät über das kommuniziert wird.</li>
+<li>sender: Fremdschlüssel. Referenz zum Benutzer der die Nachricht erstellt hat.</li>
+</ul>
+<h3 id="status-state">Status (state)</h3>
+<p>Die Stati haben die folgenden Eigenschaften:</p>
+<ul>
+<li>name: Eindeutiger Name des Status, als einfacher Text.</li>
+<li>description: Beschreibung des Status, als formatierter Text.</li>
+<li>final: Boolescher Wert. True falls es sich um einen finalen Status handelt.</li>
+</ul>
+<h3 id="datenmodel">Datenmodel</h3>
+<p>Insgesamt sieht das Datenmodel für die RepOrg Datenbank folgendermaßen aus:</p>
+<img src="/datamodel.drawio.svg" width="100%" />
+<h2 id="sql">SQL</h2>
+<p>Für die Test-Umgebung verwendet RepOrg eine SQLite Datenbank, für die Produktiv-Umgebung verwendet RepOrg eine PostgreSQL Datenbank.</p>
+<p>Ziel der SQL Statements ist es datenbank-agnostisch zu sein, da wir nicht erwarten dass das System einer so hohen Last ausgesetzt wird dass die datenbank-spezifische Optimierung notwendig ist, und wir deshalb dei Flexibilität bevorzugen.</p>
+<!--
+TODO: Wo sind die SQL Statements?
+-->
         
           
-<p class="edit-page"><a href="https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&#x2F;zola/blob/main/content&#x2F;docs&#x2F;contributing&#x2F;how-to-contribute.md"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>Edit this page on GitHub</a></p>
+<p class="edit-page"><a href="https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&#x2F;zola/blob/main/content&#x2F;docs&#x2F;developer&#x2F;datamodel.md"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>Edit this page on GitHub</a></p>
 
         
         
@@ -359,28 +461,28 @@ im <a href="https://github.com/tomirgang/reporg"><code>RepOrg</code> Repository<
         
         
           
-        
-      
-        
-        
-          
-        
-      
-        
-        
-          
             
               
-              <a href="https:&#x2F;&#x2F;reporg.de&#x2F;docs&#x2F;getting-started&#x2F;quick-start&#x2F;">
+              <a href="https:&#x2F;&#x2F;reporg.de&#x2F;docs&#x2F;user&#x2F;user&#x2F;">
                 <div class="card my-1">
                   <div class="card-body py-2">
-                    &larr; Schnellstart
+                    &larr; Benutzer
                   </div>
                 </div>
               </a>
             
             
             
+          
+        
+      
+        
+        
+          
+        
+      
+        
+        
           
         
       
@@ -408,28 +510,28 @@ im <a href="https://github.com/tomirgang/reporg"><code>RepOrg</code> Repository<
       
       
         
+      
+    
+      
+      
+        
+      
+    
+      
+      
+        
           
           
-          <a class="ms-auto" href="https:&#x2F;&#x2F;reporg.de&#x2F;docs&#x2F;user&#x2F;user&#x2F;">
+          <a class="ms-auto" href="https:&#x2F;&#x2F;reporg.de&#x2F;docs&#x2F;help&#x2F;faq&#x2F;">
             <div class="card my-1">
               <div class="card-body py-2">
-                Benutzer &rarr;
+                FAQ &rarr;
               </div>
             </div>
           </a>
           
           
           
-        
-      
-    
-      
-      
-        
-      
-    
-      
-      
         
       
     

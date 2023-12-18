@@ -187,6 +187,118 @@ im &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&quot
         
     </entry>
     <entry xml:lang="de">
+        <title>Datenmodel</title>
+        <published>2021-05-01T08:20:00+00:00</published>
+        <updated>2021-05-01T08:20:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/developer/datamodel/" type="text/html"/>
+        <id>https://reporg.de/docs/developer/datamodel/</id>
+        
+        <content type="html">&lt;p&gt;RepOrg nimmt an dass alle verwalteten Geräteanmeldungen vor dem Repair-Cafe, z.B. über ein Web-Formular, erfolgen. Diese Geräteanmeldungen werden anschließend von den Organisatoren überprüft und Reparateuren zugeordnet.&lt;&#x2F;p&gt;
+&lt;p&gt;RepOrg modelliert die folgenden Objekte:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;cafe: Die Repair-Cafe Veranstaltungen.&lt;&#x2F;li&gt;
+&lt;li&gt;device: Die defekten Geräte die für ein Repair-Cafe angemeldet wurden.&lt;&#x2F;li&gt;
+&lt;li&gt;guest: Die Besitzer der defekten Geräte, die ein Repair-Cafe besuchen.&lt;&#x2F;li&gt;
+&lt;li&gt;supporter: Die Helfer die am Repair-Cafe teilnehmen um Gästen bei der Reparatur ihrer Geräte zu helfen.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Zusätzlich gibt es die folgenden Hilfsobjekte:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;user: Die Benutzer regeln die Rechte im Web-Interface.&lt;&#x2F;li&gt;
+&lt;li&gt;meeting: Die Termine ordnen ein Gerät einem Repair-Cafe und einem Helfer zu.&lt;&#x2F;li&gt;
+&lt;li&gt;message: Die Kommunikation zu einem Gerät.&lt;&#x2F;li&gt;
+&lt;li&gt;state: Der Status einer Geräteanmeldung.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Wir versuchen die Reparaturen möglichst erfolgreich zu gestalten, dazu ist es notwendig sicherzustellen dass für jedes Gerät ein geeigneter Helfer zur Verfügung steht, und dass eine Reparatur in gegebenen Zeitrahmen erfolgversprechend ist. Um dies zue gewährleiten erfolgt für jedes Gerät eine Eingangsüberprüfung. Ein Gerät kann folgenden Status haben:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;new: Neue, ungeprüfte Geräteanmeldung.&lt;&#x2F;li&gt;
+&lt;li&gt;questioned: In Rückfrage. Falls nicht genügend Informationen vorliegen, kontaktieren die Organisatoren den Gerätebesitzer um die notwendigen Informationen einzuholen.&lt;&#x2F;li&gt;
+&lt;li&gt;waiting: Gerät wurde angenommen und kann für ein Repair-Cafe geplant werden.&lt;&#x2F;li&gt;
+&lt;li&gt;rejected: Das Gerät wurde abgelehnt, da eine erfolgreiche Reparatur unwahrscheinlich ist.&lt;&#x2F;li&gt;
+&lt;li&gt;repaired: Das Gerät wurde repariert.&lt;&#x2F;li&gt;
+&lt;li&gt;follow_up: Das Gerät wurde teilweise Repariert, und ein zweiter Termin ist notwendig.&lt;&#x2F;li&gt;
+&lt;li&gt;broken: Der Reparatur-Versuch war erfolglos.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;repair-cafes-cafe&quot;&gt;Repair-Cafes (cafe)&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Repair-Cafe Objekte haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;location: Der Ort an dem das Repair-Cafe stattfindet, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;address: Die Adresse an der das Repair-Cafe stattfindet, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;date: Das Datum an dem das Repair-Cafe stattfindet.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;gerate-device&quot;&gt;Geräte (device)&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Geräte haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;date: Das Datum der Geräteanmeldung.&lt;&#x2F;li&gt;
+&lt;li&gt;device: Die Gerätebezeichnung, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;manufacturer: Der Gerätehersteller, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;issue: Die Fehlerbeschreibung, als formatierter Text.&lt;&#x2F;li&gt;
+&lt;li&gt;picture: Ein Foto des Gerätes.&lt;&#x2F;li&gt;
+&lt;li&gt;type_plate: Ein Foto des Typenschildes des Gerätes.&lt;&#x2F;li&gt;
+&lt;li&gt;confirmed: Boolesches Feld. True falls dem Gast bereits eine Anmeldebestätigung gesendet wurde.&lt;&#x2F;li&gt;
+&lt;li&gt;guest: Fremdschlüssel. Referenz zum Gerätebesitzer.&lt;&#x2F;li&gt;
+&lt;li&gt;state: Fremdschlüssel. Referenz zum Status der Geräteanmeldung.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;gast-guest&quot;&gt;Gast (guest)&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Gäste haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;name: Der Name des Gastes, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;phone: Die Telefonnummer des Gastes, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;residence: Der Wohnort des Gastes, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;user: Fremdschlüssel. Referenz zum Benutzer Model. Jeder Gast bekommt einen Benutzerzugang, um seine Daten und die seiner Geräte zu verwalten.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;helfer-supporter&quot;&gt;Helfer (supporter)&lt;&#x2F;h2&gt;
+&lt;p&gt;Die Helfer haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;name: Der Name des Helfers, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;user: Fremdschlüssel. Referenz zum Benutzer Model.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;hilfsobjekte&quot;&gt;Hilfsobjekte&lt;&#x2F;h2&gt;
+&lt;h3 id=&quot;benutzer-user&quot;&gt;Benutzer (user)&lt;&#x2F;h3&gt;
+&lt;p&gt;Die Benutzer haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;mail: Die E-Mail-Adresse des Benutzers.&lt;&#x2F;li&gt;
+&lt;li&gt;notifications: Boolescher Wert. True bedeutet dass der Benutzer über Änderungen per E-Mail benachrichtigt werden möchte.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;termin-meeting&quot;&gt;Termin (meeting)&lt;&#x2F;h3&gt;
+&lt;p&gt;Die Termine haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;cafe: Fremdschlüssel. Referenz zum Repair-Cafe.&lt;&#x2F;li&gt;
+&lt;li&gt;supporter: Fremdschlüssel. Helfer der bei der Reparatur unterstützt.&lt;&#x2F;li&gt;
+&lt;li&gt;device: Fremdschlüssel. Das Gerät das repariert werden soll.&lt;&#x2F;li&gt;
+&lt;li&gt;time: Die Uhrzeit an der das Treffen stattfindet.&lt;&#x2F;li&gt;
+&lt;li&gt;confirmed: Boolescher Wert. True falls der Gast den Termin bestätigt hat.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;nachricht-message&quot;&gt;Nachricht (message)&lt;&#x2F;h3&gt;
+&lt;p&gt;Die Nachrichten haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;message: Inhalt der Nachricht, als formatierter Text.&lt;&#x2F;li&gt;
+&lt;li&gt;parent: Fremdschlüssel: Referenz zur vorherigen Nachricht in diesem Kommunikationsbaum.&lt;&#x2F;li&gt;
+&lt;li&gt;date: Das Datum an dem die Nachricht gesendet oder empfangen wurde.&lt;&#x2F;li&gt;
+&lt;li&gt;device: Fremdschlüssel. Referenz zum Gerät über das kommuniziert wird.&lt;&#x2F;li&gt;
+&lt;li&gt;sender: Fremdschlüssel. Referenz zum Benutzer der die Nachricht erstellt hat.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;status-state&quot;&gt;Status (state)&lt;&#x2F;h3&gt;
+&lt;p&gt;Die Stati haben die folgenden Eigenschaften:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;name: Eindeutiger Name des Status, als einfacher Text.&lt;&#x2F;li&gt;
+&lt;li&gt;description: Beschreibung des Status, als formatierter Text.&lt;&#x2F;li&gt;
+&lt;li&gt;final: Boolescher Wert. True falls es sich um einen finalen Status handelt.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;datenmodel&quot;&gt;Datenmodel&lt;&#x2F;h3&gt;
+&lt;p&gt;Insgesamt sieht das Datenmodel für die RepOrg Datenbank folgendermaßen aus:&lt;&#x2F;p&gt;
+&lt;img src=&quot;&#x2F;datamodel.drawio.svg&quot; width=&quot;100%&quot; &#x2F;&gt;
+&lt;h2 id=&quot;sql&quot;&gt;SQL&lt;&#x2F;h2&gt;
+&lt;p&gt;Für die Test-Umgebung verwendet RepOrg eine SQLite Datenbank, für die Produktiv-Umgebung verwendet RepOrg eine PostgreSQL Datenbank.&lt;&#x2F;p&gt;
+&lt;p&gt;Ziel der SQL Statements ist es datenbank-agnostisch zu sein, da wir nicht erwarten dass das System einer so hohen Last ausgesetzt wird dass die datenbank-spezifische Optimierung notwendig ist, und wir deshalb dei Flexibilität bevorzugen.&lt;&#x2F;p&gt;
+&lt;!--
+TODO: Wo sind die SQL Statements?
+--&gt;</content>
+        
+    </entry>
+    <entry xml:lang="de">
         <title>Schnellstart</title>
         <published>2021-05-01T08:20:00+00:00</published>
         <updated>2021-05-01T08:20:00+00:00</updated>
@@ -199,6 +311,19 @@ im &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;tomirgang&#x2F;reporg&quot
         <content type="html">&lt;h2 id=&quot;anforderungen&quot;&gt;Anforderungen&lt;&#x2F;h2&gt;
 &lt;h2 id=&quot;installation&quot;&gt;Installation&lt;&#x2F;h2&gt;
 </content>
+        
+    </entry>
+    <entry xml:lang="de">
+        <title>Benutzer</title>
+        <published>2021-05-01T08:20:00+00:00</published>
+        <updated>2021-05-01T08:20:00+00:00</updated>
+        <author>
+          <name>Unknown</name>
+        </author>
+        <link rel="alternate" href="https://reporg.de/docs/user/user/" type="text/html"/>
+        <id>https://reporg.de/docs/user/user/</id>
+        
+        <content type="html">&lt;!-- TODO: schreiben --&gt;</content>
         
     </entry>
     <entry xml:lang="de">
