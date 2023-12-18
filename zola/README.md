@@ -5,6 +5,5 @@ The zola sources of the reporg documentation.
 ## Die Dokumentation generieren
 
 ```bash
-./build.sh
+zola build --output-dir ../docs --force
 ```
-
