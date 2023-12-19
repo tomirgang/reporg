@@ -20,7 +20,6 @@ pub fn run(
 
     let server = HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin("https://reporg.de")
             .allowed_origin("http://127.0.0.1:8000")
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
@@ -31,7 +30,6 @@ pub fn run(
             .wrap(cors)
             .wrap(IdentityMiddleware::default())
             .wrap(SessionMiddleware::new(redis.clone(), secret_key.clone()))
-            .app_data(web::Data::new(db_pool.clone()))
             .service(
                 web::scope("/cafe")
                     .service(future_cafes)
@@ -43,6 +41,8 @@ pub fn run(
                     .service(login)
                     .service(logout),
             )
+            .app_data(web::Data::new(db_pool.clone()))
+
     })
     .listen(listener)?
     .run();

@@ -15,6 +15,7 @@ chrono = { version = "0.4.31", features = ["serde"] }
 diesel = { version = "2.1.4", features = ["postgres", "sqlite", "r2d2", "chrono", "time", "returning_clauses_for_sqlite_3_35"] }
 diesel_migrations = { version = "2.1.0", features = ["postgres", "sqlite"] }
 dotenvy = "0.15.7"
+env_logger = "0.10.1"
 log = { version = "0.4.20", features = ["serde"] }
 r2d2 = "0.8.10"
 serde = { version = "1.0.193", features = ["derive"] }
