@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 chrono = { version = "0.4.31", features = ["serde"] }
-diesel = { version = "2.1.4", features = ["postgres", "sqlite", "r2d2", "chrono", "time"] }
+diesel = { version = "2.1.4", features = ["postgres", "sqlite", "r2d2", "chrono", "time", "returning_clauses_for_sqlite_3_35"] }
+diesel_migrations = { version = "2.1.0", features = ["postgres", "sqlite"] }
 dotenvy = "0.15.7"

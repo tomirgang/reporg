@@ -92,12 +92,5 @@ diesel::joinable!(message -> user (sender));
 diesel::joinable!(supporter -> user (user));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    cafe,
-    device,
-    guest,
-    meeting,
-    message,
-    state,
-    supporter,
-    user,
+    cafe, device, guest, meeting, message, state, supporter, user,
 );
