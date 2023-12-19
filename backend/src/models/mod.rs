@@ -1,37 +1,42 @@
 pub mod cafe;
 pub mod schema;
 
-use diesel::prelude::*;
-use diesel::sqlite::Sqlite;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use dotenvy::dotenv;
 use std::env;
 use std::error::Error;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use dotenvy::dotenv;
+use diesel::sqlite::SqliteConnection;
+use diesel::r2d2::ConnectionManager;
+use r2d2::Pool;
+
+pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 pub fn run_migrations(
-    connection: &mut impl MigrationHarness<Sqlite>,
+    connection: &mut SqliteConnection,
 ) -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
     connection.run_pending_migrations(MIGRATIONS)?;
     Ok(())
 }
 
-pub fn establish_connection() -> SqliteConnection {
-    if cfg!(test) {
-        let mut conn = SqliteConnection::establish(":memory:")
-            .unwrap_or_else(|_| panic!("Error creating test database"));
-
-        let _result = run_migrations(&mut conn);
-        conn
+pub fn establish_connection() -> DbPool {
+    let database_url = if cfg!(test) {
+        String::from(":memory:")
     } else {
         dotenv().ok();
+        env::var("DATABASE_URL").expect("DATABASE_URL must be set")
+    };
 
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+    let pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB pool.");
 
-        SqliteConnection::establish(&database_url)
-            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+    match run_migrations(&mut pool.get().unwrap()) {
+        Ok(_) => {},
+        Err(e) => panic!("Migrations failed: {}", e),
     }
+
+    pool
 }
 
 #[cfg(test)]
@@ -40,13 +45,14 @@ mod tests {
 
     #[test]
     fn create_db_connection() {
+        use diesel::prelude::*;
         use crate::models::cafe::Cafe;
         use crate::models::schema::cafe::dsl::*;
 
-        let mut connection = establish_connection();
+        let pool = establish_connection();
         cafe.limit(1)
             .select(Cafe::as_select())
-            .load(&mut connection)
+            .load(&mut pool.get().unwrap())
             .expect("Error loading cafes.");
     }
 }
