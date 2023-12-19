@@ -1,7 +1,8 @@
-use std::net::TcpListener;
-use backend::models::{DbPool, establish_connection};
+use actix_session::storage::RedisSessionStore;
 use backend::models::cafe::Cafe;
+use backend::models::{establish_connection, DbPool};
 use chrono::NaiveDateTime;
+use std::net::TcpListener;
 
 pub struct TestApp {
     pub address: String,
@@ -10,10 +11,16 @@ pub struct TestApp {
 
 async fn spawn_app() -> TestApp {
     let connection_pool = establish_connection();
-    
+
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to random port.");
     let port = listener.local_addr().unwrap().port();
-    let server = backend::run(listener, connection_pool.clone()).expect("Failed to bind to address.");
+
+    let redis = RedisSessionStore::new("redis://127.0.0.1:6379")
+        .await
+        .unwrap();
+
+    let server =
+        backend::run(listener, redis, connection_pool.clone()).expect("Failed to bind to address.");
     let _ = tokio::spawn(server);
     let address = format!("http://127.0.0.1:{}", port);
     TestApp {
@@ -35,11 +42,8 @@ async fn future_cafes_works() {
 
     assert!(response.status().is_success());
 
-    let content = response
-        .text()
-        .await
-        .expect("Getting body failed!");
-    
+    let content = response.text().await.expect("Getting body failed!");
+
     let _cafes: Vec<Cafe> = serde_json::from_str(&content).expect("Parsing body failed!");
 }
 
@@ -60,18 +64,18 @@ async fn create_cafe_ok() {
 
     assert!(response.status().is_success());
 
-    let content = response
-        .text()
-        .await
-        .expect("Getting body failed!");
-    
+    let content = response.text().await.expect("Getting body failed!");
+
     let cafe: Cafe = serde_json::from_str(&content).expect("Parsing cafe failed!");
 
     assert!(cafe.id >= 0);
     assert_eq!(cafe.location, String::from("Haus des Gastes"));
-    assert_eq!(cafe.address, String::from("Maria-Dorothea-Straße 8, 91161 Hilpoltstein"));
+    assert_eq!(
+        cafe.address,
+        String::from("Maria-Dorothea-Straße 8, 91161 Hilpoltstein")
+    );
 
-    let date = NaiveDateTime::parse_from_str("2018-06-12T19:30", "%Y-%m-%dT%H:%M").expect("Parsing date failed!");
+    let date = NaiveDateTime::parse_from_str("2018-06-12T19:30", "%Y-%m-%dT%H:%M")
+        .expect("Parsing date failed!");
     assert_eq!(cafe.date, date);
-
 }

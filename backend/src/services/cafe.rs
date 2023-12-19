@@ -1,10 +1,9 @@
-use log::debug;
-use actix_web::{error, get, web, HttpResponse, Responder, post};
-use chrono::NaiveDateTime;
-use crate::models::cafe::NewCafe;
 use crate::models::cafe::Cafe;
+use crate::models::cafe::NewCafe;
 use crate::models::DbPool;
-
+use actix_web::{error, get, post, web, HttpResponse, Responder};
+use chrono::NaiveDateTime;
+use log::debug;
 
 #[get("/")]
 pub async fn future_cafes(pool: web::Data<DbPool>) -> actix_web::Result<impl Responder> {
@@ -16,7 +15,7 @@ pub async fn future_cafes(pool: web::Data<DbPool>) -> actix_web::Result<impl Res
     .map_err(error::ErrorInternalServerError)?;
 
     let response = HttpResponse::Ok().json(&cafes);
-    
+
     Ok(response)
 }
 
@@ -31,15 +30,20 @@ pub struct NewCafeData {
 pub async fn create_cafe(
     pool: web::Data<DbPool>,
     form: web::Form<NewCafeData>,
-)  -> actix_web::Result<impl Responder> {
+) -> actix_web::Result<impl Responder> {
+    let actix_web::web::Form(NewCafeData {
+        location,
+        address,
+        date,
+    }) = form;
 
-    let actix_web::web::Form(NewCafeData { location, address, date }) = form;
-
-    debug!("POST: create date - location: {}, address: {}, date: {}", &location, &address, &date);
+    debug!(
+        "POST: create date - location: {}, address: {}, date: {}",
+        &location, &address, &date
+    );
 
     match NaiveDateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M") {
         Ok(date) => {
-
             let new_cafe = NewCafe::new(location, address, date);
 
             let cafe = web::block(move || {
@@ -48,11 +52,11 @@ pub async fn create_cafe(
             })
             .await?
             .map_err(error::ErrorInternalServerError)?;
-        
+
             let response = HttpResponse::Ok().json(&cafe);
-            
+
             Ok(response)
-        },
+        }
         Err(e) => Err(error::ErrorBadRequest(e)),
     }
 }

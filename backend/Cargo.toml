@@ -7,7 +7,10 @@ edition = "2021"
 
 [dependencies]
 actix-cors = "0.6.5"
+actix-identity = "0.6.0"
+actix-session = { version = "0.8.0", features = ["actix-redis", "cookie-session", "redis", "rand", "redis-rs-session", "actix"] }
 actix-web = "4.4.0"
+actix-web-httpauth = "0.8.1"
 chrono = { version = "0.4.31", features = ["serde"] }
 diesel = { version = "2.1.4", features = ["postgres", "sqlite", "r2d2", "chrono", "time", "returning_clauses_for_sqlite_3_35"] }
 diesel_migrations = { version = "2.1.0", features = ["postgres", "sqlite"] }
