@@ -1,13 +1,13 @@
 pub mod cafe;
 pub mod schema;
 
-use std::env;
-use std::error::Error;
+use diesel::r2d2::ConnectionManager;
+use diesel::sqlite::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
-use diesel::sqlite::SqliteConnection;
-use diesel::r2d2::ConnectionManager;
 use r2d2::Pool;
+use std::env;
+use std::error::Error;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
@@ -29,10 +29,12 @@ pub fn establish_connection() -> DbPool {
     };
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
-    let pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB pool.");
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create DB pool.");
 
     match run_migrations(&mut pool.get().unwrap()) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => panic!("Migrations failed: {}", e),
     }
 
@@ -45,9 +47,9 @@ mod tests {
 
     #[test]
     fn create_db_connection() {
-        use diesel::prelude::*;
         use crate::models::cafe::Cafe;
         use crate::models::schema::cafe::dsl::*;
+        use diesel::prelude::*;
 
         let pool = establish_connection();
         cafe.limit(1)

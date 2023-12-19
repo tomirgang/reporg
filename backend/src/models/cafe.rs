@@ -2,8 +2,9 @@ use crate::models::schema::cafe;
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Serialize, Deserialize)]
 #[diesel(table_name = cafe)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Cafe {
@@ -100,7 +101,7 @@ impl Cafe {
     }
 }
 
-#[derive(Insertable, AsChangeset)]
+#[derive(Insertable, AsChangeset, Serialize, Deserialize)]
 #[diesel(table_name = cafe)]
 pub struct NewCafe {
     pub location: String,
