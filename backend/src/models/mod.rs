@@ -4,10 +4,10 @@ pub mod schema;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use dotenvy::dotenv;
 use r2d2::Pool;
 use std::env;
 use std::error::Error;
+use dotenvy::dotenv;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 

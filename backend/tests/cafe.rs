@@ -1,37 +1,11 @@
-use actix_session::storage::RedisSessionStore;
+mod common;
+
 use backend::models::cafe::Cafe;
-use backend::models::{establish_connection, DbPool};
 use chrono::NaiveDateTime;
-use std::net::TcpListener;
-
-pub struct TestApp {
-    pub address: String,
-    pub db_pool: DbPool,
-}
-
-async fn spawn_app() -> TestApp {
-    let connection_pool = establish_connection();
-
-    let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to random port.");
-    let port = listener.local_addr().unwrap().port();
-
-    let redis = RedisSessionStore::new("redis://127.0.0.1:6379")
-        .await
-        .unwrap();
-
-    let server =
-        backend::run(listener, redis, connection_pool.clone()).expect("Failed to bind to address.");
-    let _ = tokio::spawn(server);
-    let address = format!("http://127.0.0.1:{}", port);
-    TestApp {
-        address,
-        db_pool: connection_pool,
-    }
-}
 
 #[tokio::test]
 async fn future_cafes_works() {
-    let app = spawn_app().await;
+    let app = common::spawn_app().await;
     let client = reqwest::Client::new();
 
     let response = client
@@ -49,7 +23,7 @@ async fn future_cafes_works() {
 
 #[tokio::test]
 async fn create_cafe_ok() {
-    let app = spawn_app().await;
+    let app = common::spawn_app().await;
     let client = reqwest::Client::new();
 
     let body = "location=Haus%20des%20Gastes&address=Maria-Dorothea-Stra%C3%9Fe%208%2C%2091161%20Hilpoltstein&date=2018-06-12T19%3A30";

@@ -1,14 +1,14 @@
 use crate::models::cafe::Cafe;
 use crate::models::cafe::NewCafe;
-use crate::models::DbPool;
+use crate::AppState;
 use actix_web::{error, get, post, web, HttpResponse, Responder};
 use chrono::NaiveDateTime;
 use log::debug;
 
 #[get("/")]
-pub async fn future_cafes(pool: web::Data<DbPool>) -> actix_web::Result<impl Responder> {
+pub async fn future_cafes(state: web::Data<AppState>) -> actix_web::Result<impl Responder> {
     let cafes = web::block(move || {
-        let mut conn = pool.get().expect("DB connection error");
+        let mut conn = state.db_pool.get().expect("DB connection error");
         Cafe::future_cafes(&mut conn)
     })
     .await?
@@ -28,7 +28,7 @@ pub struct NewCafeData {
 
 #[post("/")]
 pub async fn create_cafe(
-    pool: web::Data<DbPool>,
+    state: web::Data<AppState>,
     form: web::Form<NewCafeData>,
 ) -> actix_web::Result<impl Responder> {
     let actix_web::web::Form(NewCafeData {
@@ -47,7 +47,7 @@ pub async fn create_cafe(
             let new_cafe = NewCafe::new(location, address, date);
 
             let cafe = web::block(move || {
-                let mut conn = pool.get().expect("DB connection error");
+                let mut conn = state.db_pool.get().expect("DB connection error");
                 new_cafe.save(&mut conn)
             })
             .await?

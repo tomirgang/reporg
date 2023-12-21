@@ -1,2 +1,2 @@
 pub mod cafe;
-pub mod identity;
+pub mod user;

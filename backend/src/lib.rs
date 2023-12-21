@@ -2,20 +2,83 @@ pub mod models;
 pub mod services;
 
 use crate::services::cafe::{create_cafe, future_cafes};
-use crate::services::identity::{index, login, logout};
+use crate::services::user::{oidc_init, oidc_success, user_index, logout};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
 use actix_web::dev::Server;
 use actix_web::{cookie::Key, http, web, App, HttpServer};
+use dotenvy::dotenv;
 use models::DbPool;
+use serde::{Deserialize, Serialize};
+use std::env;
 use std::net::TcpListener;
+use openidconnect::{
+    ClientId,
+    ClientSecret,
+    IssuerUrl,
+    RedirectUrl,
+};
+use openidconnect::core::{
+  CoreClient,
+  CoreProviderMetadata,
+};
+// using reqWest ends tokio after metadata request :(
+use openidconnect::curl::http_client;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct UrlConfig {
+    pub login_success: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct AppState {
+    pub oidc_client: CoreClient,
+    pub db_pool: DbPool,
+    pub url_config: UrlConfig,
+}
 
 pub fn run(
     listener: TcpListener,
     redis: RedisSessionStore,
     db_pool: DbPool,
-) -> Result<Server, std::io::Error> {
+) -> Server {
+    dotenv().ok();
+
+    let url_config = UrlConfig {
+        login_success: String::from("/user/"),
+    };
+
+    let oidc_client_id = ClientId::new(
+        env::var("OIDC_CLIENT_ID").expect("Missing the OIDC_CLIENT_ID environment variable."),
+    );
+    let oidc_client_secret = ClientSecret::new(
+        env::var("OIDC_CLIENT_SECRET")
+            .expect("Missing the OIDC_CLIENT_SECRET environment variable."),
+    );
+    let issuer_url = IssuerUrl::new(
+        env::var("OIDC_ISSUER_URL").expect("Missing the OIDC_ISSUER_URL environment variable.")
+    )
+    .expect("Invalid issuer URL");
+    let redirect_url = RedirectUrl::new(
+        env::var("OIDC_REDIRECT_URL").expect("Missing the OIDC_REDIRECT_URL environment variable."),
+    )
+    .expect("Invalid redirect URL");
+
+    let provider_metadata = CoreProviderMetadata::discover(
+        &issuer_url,
+        http_client,
+    ).expect("Resolving provider metadata failed!");
+
+    let client =
+        CoreClient::from_provider_metadata(
+            provider_metadata,
+            oidc_client_id,
+            Some(oidc_client_secret),
+        )
+        // Set the URL the user will be redirected to after the authorization process.
+        .set_redirect_uri(redirect_url);
+
     let secret_key = Key::generate();
 
     let server = HttpServer::new(move || {
@@ -37,15 +100,20 @@ pub fn run(
             )
             .service(
                 web::scope("/user")
-                    .service(index)
-                    .service(login)
-                    .service(logout),
+                    .service(user_index)
+                    .service(logout)
+                    .service(oidc_init)
+                    .service(oidc_success),
             )
-            .app_data(web::Data::new(db_pool.clone()))
-
+            .app_data(web::Data::new(AppState {
+                oidc_client: client.to_owned(),
+                db_pool: db_pool.to_owned(),
+                url_config: url_config.to_owned(),
+            }))
     })
-    .listen(listener)?
+    .listen(listener)
+    .expect("Failed to bind to address.")
     .run();
 
-    Ok(server)
+    server
 }
