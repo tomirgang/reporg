@@ -1,11 +1,12 @@
 mod common;
 
 use reqwest::header::ORIGIN;
+use common::login;
 
 #[tokio::test]
 async fn cors_localhost_is_ok() {
     let app = common::spawn_app().await;
-    let client = reqwest::Client::new();
+    let client = login(&app, "Guest").await;
 
     let response = client
         .get(&format!("{}/user/", &app.address))

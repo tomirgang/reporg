@@ -1,6 +1,9 @@
 use crate::models::cafe::Cafe;
 use crate::models::cafe::NewCafe;
 use crate::AppState;
+use crate::permissions::{check_permissions, Role};
+use actix_identity::Identity;
+use actix_session::Session;
 use actix_web::{error, get, post, web, HttpResponse, Responder};
 use chrono::NaiveDateTime;
 use log::debug;
@@ -30,7 +33,12 @@ pub struct NewCafeData {
 pub async fn create_cafe(
     state: web::Data<AppState>,
     form: web::Form<NewCafeData>,
+    _user: Identity, // require user login
+    session: Session,
 ) -> actix_web::Result<impl Responder> {
+
+    check_permissions(vec!{Role::Organizer, Role::Admin}, session)?;
+
     let actix_web::web::Form(NewCafeData {
         location,
         address,

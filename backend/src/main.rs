@@ -6,9 +6,17 @@ use env_logger::Builder;
 use log::LevelFilter;
 use std::io::Write;
 use std::net::TcpListener;
+use dotenvy::dotenv;
+use std::env;
+use core::str::FromStr;
 
 #[actix_web::main]
 async fn main() {
+    dotenv().ok();
+
+    let log_level = env::var("REPORG_LOG_LEVEL").unwrap_or("error".to_string());
+    let filter = LevelFilter::from_str(&log_level).expect("Invalid log level!");
+
     Builder::new()
         .format(|buf, record| {
             writeln!(
@@ -19,7 +27,7 @@ async fn main() {
                 record.args()
             )
         })
-        .filter(None, LevelFilter::Debug)
+        .filter(None, filter)
         .init();
 
     log::debug!("Hello from reporg!");
@@ -33,5 +41,5 @@ async fn main() {
         .await
         .unwrap();
 
-    let _server  = run(listener, redis, connection_pool).await;
+    let _server = run(listener, redis, connection_pool).await;
 }
