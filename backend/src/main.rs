@@ -2,13 +2,13 @@ use actix_session::storage::RedisSessionStore;
 use backend::models::establish_connection;
 use backend::run;
 use chrono::Local;
+use core::str::FromStr;
+use dotenvy::dotenv;
 use env_logger::Builder;
 use log::LevelFilter;
+use std::env;
 use std::io::Write;
 use std::net::TcpListener;
-use dotenvy::dotenv;
-use std::env;
-use core::str::FromStr;
 
 #[actix_web::main]
 async fn main() {

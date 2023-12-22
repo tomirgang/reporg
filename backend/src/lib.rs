@@ -3,7 +3,7 @@ pub mod permissions;
 pub mod services;
 
 use crate::services::cafe::{create_cafe, future_cafes};
-use crate::services::user::{logout, oidc_init, oidc_success, user_index, tester_login};
+use crate::services::user::{logout, oidc_init, oidc_success, tester_login, user_index};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
@@ -22,6 +22,7 @@ use openidconnect::curl::http_client;
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UrlConfig {
     pub login_success: String,
+    pub logout_success: String,
 }
 
 #[derive(Debug, Clone)]
@@ -35,7 +36,8 @@ pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> 
     dotenv().ok();
 
     let url_config = UrlConfig {
-        login_success: String::from("/user/"),
+        login_success: String::from("http://127.0.0.1:8001/mitarbeiter"),
+        logout_success: String::from("http://127.0.0.1:8001/mitarbeiter"),
     };
 
     let oidc_client_id = ClientId::new(
@@ -80,18 +82,21 @@ pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> 
             .wrap(IdentityMiddleware::default())
             .wrap(SessionMiddleware::new(redis.clone(), secret_key.clone()))
             .service(
-                web::scope("/cafe")
-                    .service(future_cafes)
-                    .service(create_cafe),
+                web::scope("/api")
+                    .service(
+                        web::scope("/cafe")
+                            .service(future_cafes)
+                            .service(create_cafe),
+                    )
+                    .service(
+                        web::scope("/user")
+                            .service(user_index)
+                            .service(tester_login),
+                    ),
             )
-            .service(
-                web::scope("/user")
-                    .service(user_index)
-                    .service(logout)
-                    .service(oidc_init)
-                    .service(oidc_success)
-                    .service(tester_login),
-            )
+            .service(logout)
+            .service(oidc_init)
+            .service(oidc_success)
             .app_data(web::Data::new(AppState {
                 oidc_client: client.to_owned(),
                 db_pool: db_pool.to_owned(),

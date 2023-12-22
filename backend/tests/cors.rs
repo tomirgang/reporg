@@ -1,7 +1,7 @@
 mod common;
 
-use reqwest::header::ORIGIN;
 use common::login;
+use reqwest::header::ORIGIN;
 
 #[tokio::test]
 async fn cors_localhost_is_ok() {
@@ -9,7 +9,7 @@ async fn cors_localhost_is_ok() {
     let client = login(&app, "Guest").await;
 
     let response = client
-        .get(&format!("{}/user/", &app.address))
+        .get(&format!("{}/api/user/", &app.address))
         .header(ORIGIN, "http://127.0.0.1:8000")
         .send()
         .await
@@ -24,7 +24,7 @@ async fn cors_example_com_fails() {
     let client = reqwest::Client::new();
 
     let response = client
-        .get(&format!("{}/user/", &app.address))
+        .get(&format!("{}/api/user/", &app.address))
         .header(ORIGIN, "https:/example.com")
         .send()
         .await

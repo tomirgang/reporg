@@ -314,3 +314,22 @@ html, body {
   text-align: center;
   padding: 10px;
 }
+
+.user div {
+  width: 100%;
+  text-align: center;
+  font-size: smaller;
+  color: lightgray;
+}
+
+.user .username {
+  font-size: xx-large;
+  font-weight: bold;
+  color: white;
+}
+
+.user .role {
+  font-size: larger;
+  font-weight: bold;
+  color: white;
+}

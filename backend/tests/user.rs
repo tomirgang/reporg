@@ -1,9 +1,9 @@
 mod common;
 
+use common::login;
 use dotenvy::dotenv;
 use log::debug;
 use std::env;
-use common::login;
 
 #[tokio::test]
 async fn tester_login_admin_ok() {
@@ -35,11 +35,16 @@ async fn tester_login_invalid_role_forbidden() {
 
     dotenv().ok();
 
-    let api_key = env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
+    let api_key =
+        env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
 
     let client = reqwest::Client::new();
 
-    let response = client.get(&format!("{}/user/tester_login?role={}&key={}", &app.address, "SuperAdmin", api_key))
+    let response = client
+        .get(&format!(
+            "{}/api/user/tester_login?role={}&key={}",
+            &app.address, "SuperAdmin", api_key
+        ))
         .send()
         .await
         .expect("Failed to execute login request.");
@@ -53,7 +58,11 @@ async fn tester_login_invalid_key_forbidden() {
 
     let client = reqwest::Client::new();
 
-    let response = client.get(&format!("{}/user/tester_login?role={}&key={}", &app.address, "Admin", "SomeWrongKey"))
+    let response = client
+        .get(&format!(
+            "{}/api/user/tester_login?role={}&key={}",
+            &app.address, "Admin", "SomeWrongKey"
+        ))
         .send()
         .await
         .expect("Failed to execute login request.");
@@ -66,10 +75,11 @@ async fn tester_login_session_stored() {
     let app = common::spawn_app().await;
     let client = login(&app, "Organizer").await;
 
-    let response = client.get(&format!("{}/user/", &app.address))
-    .send()
-    .await
-    .expect("Failed to execute user request.");
+    let response = client
+        .get(&format!("{}/api/user/", &app.address))
+        .send()
+        .await
+        .expect("Failed to execute user request.");
 
     assert!(response.status().is_success());
 

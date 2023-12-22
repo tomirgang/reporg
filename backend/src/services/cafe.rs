@@ -1,7 +1,7 @@
 use crate::models::cafe::Cafe;
 use crate::models::cafe::NewCafe;
-use crate::AppState;
 use crate::permissions::{check_permissions, Role};
+use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
 use actix_web::{error, get, post, web, HttpResponse, Responder};
@@ -17,9 +17,7 @@ pub async fn future_cafes(state: web::Data<AppState>) -> actix_web::Result<impl 
     .await?
     .map_err(error::ErrorInternalServerError)?;
 
-    let response = HttpResponse::Ok().json(&cafes);
-
-    Ok(response)
+    Ok(HttpResponse::Ok().json(&cafes))
 }
 
 #[derive(serde::Deserialize)]
@@ -36,8 +34,7 @@ pub async fn create_cafe(
     _user: Identity, // require user login
     session: Session,
 ) -> actix_web::Result<impl Responder> {
-
-    check_permissions(vec!{Role::Organizer, Role::Admin}, session)?;
+    check_permissions(vec![Role::Organizer, Role::Admin], session)?;
 
     let actix_web::web::Form(NewCafeData {
         location,

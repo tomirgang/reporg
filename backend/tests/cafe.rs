@@ -11,7 +11,7 @@ async fn future_cafes_works() {
     let client = login(&app, "Guest").await;
 
     let response = client
-        .get(&format!("{}/cafe/", &app.address))
+        .get(&format!("{}/api/cafe/", &app.address))
         .send()
         .await
         .expect("Failed to execute request.");
@@ -33,7 +33,7 @@ async fn create_cafe_ok() {
     let body = "location=Haus%20des%20Gastes&address=Maria-Dorothea-Stra%C3%9Fe%208%2C%2091161%20Hilpoltstein&date=2018-06-12T19%3A30";
 
     let response = client
-        .post(&format!("{}/cafe/", &app.address))
+        .post(&format!("{}/api/cafe/", &app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -66,7 +66,7 @@ async fn create_cafe_fails_without_login() {
     let body = "location=Haus%20des%20Gastes&address=Maria-Dorothea-Stra%C3%9Fe%208%2C%2091161%20Hilpoltstein&date=2018-06-12T19%3A30";
 
     let response = client
-        .post(&format!("{}/cafe/", &app.address))
+        .post(&format!("{}/api/cafe/", &app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -84,7 +84,7 @@ async fn create_cafe_fails_for_guest() {
     let body = "location=Haus%20des%20Gastes&address=Maria-Dorothea-Stra%C3%9Fe%208%2C%2091161%20Hilpoltstein&date=2018-06-12T19%3A30";
 
     let response = client
-        .post(&format!("{}/cafe/", &app.address))
+        .post(&format!("{}/api/cafe/", &app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()
@@ -102,7 +102,7 @@ async fn create_cafe_fails_for_supporter() {
     let body = "location=Haus%20des%20Gastes&address=Maria-Dorothea-Stra%C3%9Fe%208%2C%2091161%20Hilpoltstein&date=2018-06-12T19%3A30";
 
     let response = client
-        .post(&format!("{}/cafe/", &app.address))
+        .post(&format!("{}/api/cafe/", &app.address))
         .header("Content-Type", "application/x-www-form-urlencoded")
         .body(body)
         .send()

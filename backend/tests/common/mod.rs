@@ -1,13 +1,13 @@
 use actix_session::storage::RedisSessionStore;
 use backend::models::{establish_connection, DbPool};
-use std::net::TcpListener;
+use chrono::Local;
+use core::str::FromStr;
+use dotenvy::dotenv;
 use env_logger::Builder;
 use log::LevelFilter;
-use std::io::Write;
-use chrono::Local;
-use dotenvy::dotenv;
 use std::env;
-use core::str::FromStr;
+use std::io::Write;
+use std::net::TcpListener;
 
 pub struct TestApp {
     pub address: String,
@@ -54,14 +54,19 @@ pub async fn spawn_app() -> TestApp {
 pub async fn login(app: &TestApp, role: &str) -> reqwest::Client {
     dotenv().ok();
 
-    let api_key = env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
+    let api_key =
+        env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
 
     let client = reqwest::Client::builder()
         .cookie_store(true)
         .build()
         .expect("Client builder error!");
 
-    let response = client.get(&format!("{}/user/tester_login?role={}&key={}", app.address, role, api_key))
+    let response = client
+        .get(&format!(
+            "{}/api/user/tester_login?role={}&key={}",
+            app.address, role, api_key
+        ))
         .send()
         .await
         .expect("Failed to execute login request.");

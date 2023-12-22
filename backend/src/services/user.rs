@@ -1,11 +1,12 @@
-use crate::AppState;
 use crate::permissions::Role;
+use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::error::{ErrorBadRequest, ErrorForbidden};
+use actix_web::error::{ErrorBadRequest, ErrorForbidden, ErrorInternalServerError};
 use actix_web::http::header;
-use actix_web::{get, post, web, HttpMessage, HttpRequest, HttpResponse, Responder};
-use log::info;
+use actix_web::{get, web, HttpMessage, HttpRequest, HttpResponse, Responder};
+use dotenvy::dotenv;
+use log::{debug, info};
 use openidconnect::core::CoreAuthenticationFlow;
 use openidconnect::reqwest::async_http_client;
 use openidconnect::{
@@ -13,7 +14,6 @@ use openidconnect::{
 };
 use openidconnect::{OAuth2TokenResponse, TokenResponse};
 use serde::{Deserialize, Serialize};
-use dotenvy::dotenv;
 use std::env;
 
 #[derive(Deserialize, Serialize)]
@@ -48,6 +48,8 @@ async fn oidc_init(
             nonce,
         },
     )?;
+
+    debug!("Auth URL: {:?}", auth_url.to_string());
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, auth_url.to_string()))
@@ -120,28 +122,73 @@ async fn oidc_success(
 
     Identity::login(&request.extensions(), username.into()).unwrap();
 
-    session.insert("roles", vec!{Role::Supporter})?;
+    session.insert("roles", vec![Role::Supporter])?;
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, data.url_config.login_success.clone()))
         .finish())
 }
 
-#[get("/")]
-async fn user_index(user: Option<Identity>, session: Session) -> Result<impl Responder, actix_web::Error> {
-    let roles = session.get::<Vec<Role>>("roles")?;
-
-    if let Some(user) = user {
-        Ok(format!("Welcome {}!<br/>Roles: {:?}", user.id().unwrap(), roles))
-    } else {
-        Ok("Welcome Anonymous!".to_owned())
-    }
+#[derive(Deserialize, Serialize)]
+struct BackendUser {
+    name: Option<String>,
+    email: Option<String>,
+    roles: Option<Vec<String>>,
+    login_url: Option<String>,
+    logout_url: Option<String>,
 }
 
-#[post("/logout")]
-async fn logout(user: Identity) -> impl Responder {
+#[get("/")]
+async fn user_index(
+    user: Option<Identity>,
+    session: Session,
+) -> Result<impl Responder, actix_web::Error> {
+    let user = match user {
+        Some(user) => user,
+        None => {
+            return Ok(HttpResponse::Ok().json(BackendUser {
+                name: None,
+                email: None,
+                roles: None,
+                login_url: Some("http://127.0.0.1:8000/login/oidc".to_string()),
+                logout_url: None,
+            }));
+        }
+    };
+
+    let roles = session.get::<Vec<Role>>("roles")?;
+    let roles: Option<Vec<String>> = match roles {
+        Some(roles) => Some(
+            roles
+                .iter()
+                .map(|role| match role {
+                    Role::Admin => "Admin".to_string(),
+                    Role::Organizer => "Organizer".to_string(),
+                    Role::Supporter => "Supporter".to_string(),
+                    Role::Guest => "Guest".to_string(),
+                })
+                .collect(),
+        ),
+        None => None,
+    };
+
+    let username = user.id().map_err(|e| ErrorInternalServerError(e))?;
+
+    Ok(HttpResponse::Ok().json(BackendUser {
+        name: Some(username),
+        email: None,
+        roles,
+        login_url: None,
+        logout_url: Some("http://127.0.0.1:8000/logout".to_string()),
+    }))
+}
+
+#[get("/logout")]
+async fn logout(user: Identity, data: web::Data<AppState>) -> impl Responder {
     user.logout();
-    HttpResponse::Ok()
+    HttpResponse::Found()
+        .append_header((header::LOCATION, data.url_config.logout_success.clone()))
+        .finish()
 }
 
 #[derive(Deserialize, Debug)]
@@ -157,7 +204,6 @@ async fn tester_login(
     data: web::Data<AppState>,
     request: HttpRequest,
 ) -> Result<impl Responder, actix_web::Error> {
-
     info!("Tester login: {:?}", params);
 
     dotenv().ok();
@@ -167,7 +213,7 @@ async fn tester_login(
     if params.key != api_key {
         return Err(ErrorForbidden("Invalid API key"));
     }
-    
+
     let role = if params.role == "Admin" {
         Role::Admin
     } else if params.role == "Organizer" {
@@ -180,7 +226,7 @@ async fn tester_login(
         return Err(ErrorForbidden("Invalid role!"));
     };
 
-    session.insert("roles", vec!{role})?;
+    session.insert("roles", vec![role])?;
 
     Identity::login(&request.extensions(), "Tester".into()).unwrap();
 
