@@ -17,3 +17,7 @@ wasm-logger = "0.2.0"
 web-sys = "0.3.66"
 yew = { version="0.21", features=["csr"] }
 yew-router = "0.18.0"
+
+[dev-dependencies]
+thirtyfour = "0.31.0"
+tokio = "1.35.1"
