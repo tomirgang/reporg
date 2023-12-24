@@ -44,6 +44,26 @@ impl User {
         Ok(user_object)
     }
 
+    pub fn find_by_email(
+        user_email: &str,
+        connection: &mut SqliteConnection,
+    ) -> Result<Option<User>, diesel::result::Error> {
+        use crate::models::schema::user::dsl::*;
+        let mut results = user
+            .limit(1)
+            .filter(email.eq(user_email))
+            .select(User::as_select())
+            .load(connection)?;
+
+        let user_object = if results.len() > 0 {
+            Some(results.remove(0))
+        } else {
+            None
+        };
+
+        Ok(user_object)
+    }
+
     pub fn list(
         limit: i64,
         connection: &mut SqliteConnection,
@@ -261,6 +281,22 @@ mod tests {
         match User::find(user_id, &mut connection) {
             Ok(opt_user) => match opt_user {
                 Some(db_user) => assert_eq!(db_user.id, user_id),
+                None => panic!("User was not found!"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn find_user_by_email() {
+        let mut connection = establish_connection().get().unwrap();
+        let (_, db_user) = dummy_user(&mut connection);
+
+        let user_email = db_user.email;
+
+        match User::find_by_email(&user_email, &mut connection) {
+            Ok(opt_user) => match opt_user {
+                Some(db_user) => assert_eq!(db_user.email, user_email),
                 None => panic!("User was not found!"),
             },
             Err(e) => panic!("{}", e),

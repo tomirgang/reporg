@@ -49,7 +49,7 @@ pub async fn create_cafe(
 
     match NaiveDateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M") {
         Ok(date) => {
-            let new_cafe = NewCafe::new(location, address, date);
+            let new_cafe = NewCafe::new(&location, &address, date);
 
             let cafe = web::block(move || {
                 let mut conn = state.db_pool.get().expect("DB connection error");

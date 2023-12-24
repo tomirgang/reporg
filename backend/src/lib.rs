@@ -3,7 +3,8 @@ pub mod permissions;
 pub mod services;
 
 use crate::services::cafe::{create_cafe, future_cafes};
-use crate::services::user::{logout, oidc_init, oidc_success, tester_login, user_index};
+use crate::services::user::{tester_login, user_index};
+use crate::services::login::{logout, oidc_init, oidc_success};
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};

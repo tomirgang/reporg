@@ -110,10 +110,10 @@ pub struct NewCafe {
 }
 
 impl NewCafe {
-    pub fn new(location: String, address: String, date: NaiveDateTime) -> NewCafe {
+    pub fn new(location: &str, address: &str, date: NaiveDateTime) -> NewCafe {
         NewCafe {
-            location: location,
-            address: address,
+            location: location.to_string(),
+            address: address.to_string(),
             date: date,
         }
     }
@@ -142,8 +142,8 @@ mod tests {
         };
 
         let new_cafe = NewCafe::new(
-            String::from("Haus des Gastes"),
-            String::from("Maria-Dorothea-Straße 8, 91161 Hilpoltstein"),
+            "Haus des Gastes",
+            "Maria-Dorothea-Straße 8, 91161 Hilpoltstein",
             cafe_date,
         );
 
