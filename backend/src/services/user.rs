@@ -201,7 +201,6 @@ pub struct TesterLogin {
 async fn tester_login(
     session: Session,
     params: web::Query<TesterLogin>,
-    data: web::Data<AppState>,
     request: HttpRequest,
 ) -> Result<impl Responder, actix_web::Error> {
     info!("Tester login: {:?}", params);
@@ -231,6 +230,6 @@ async fn tester_login(
     Identity::login(&request.extensions(), "Tester".into()).unwrap();
 
     Ok(HttpResponse::Found()
-        .append_header((header::LOCATION, data.url_config.login_success.clone()))
+        .append_header((header::LOCATION, "/api/user/"))
         .finish())
 }

@@ -1,4 +1,5 @@
 pub mod cafe;
+pub mod user;
 pub mod schema;
 
 use diesel::r2d2::ConnectionManager;

@@ -6,10 +6,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Copy)]
 pub enum Role {
-    Guest,
-    Supporter,
-    Organizer,
-    Admin,
+    Guest = 1,
+    Supporter = 2,
+    Organizer = 4,
+    Admin = 8
 }
 
 pub fn check_permissions(required: Vec<Role>, session: Session) -> Result<(), Error> {

@@ -11,7 +11,7 @@ diesel::table! {
 
 diesel::table! {
     device (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         date -> Timestamp,
         name -> Text,
         manufacturer -> Text,
@@ -19,23 +19,14 @@ diesel::table! {
         picture -> Nullable<Text>,
         type_plate -> Nullable<Text>,
         confirmed -> Bool,
-        guest -> Integer,
+        user -> Integer,
         state -> Integer,
     }
 }
 
 diesel::table! {
-    guest (id) {
-        id -> Nullable<Integer>,
-        name -> Text,
-        phone -> Text,
-        user -> Integer,
-    }
-}
-
-diesel::table! {
     meeting (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         time -> Timestamp,
         confirmed -> Bool,
         cafe -> Integer,
@@ -46,7 +37,7 @@ diesel::table! {
 
 diesel::table! {
     message (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         parent -> Integer,
         content -> Text,
         date -> Timestamp,
@@ -66,31 +57,29 @@ diesel::table! {
 }
 
 diesel::table! {
-    supporter (id) {
-        id -> Nullable<Integer>,
-        name -> Text,
-        user -> Integer,
-    }
-}
-
-diesel::table! {
     user (id) {
-        id -> Nullable<Integer>,
-        mail -> Text,
+        id -> Integer,
+        name -> Text,
+        email -> Text,
+        phone -> Text,
         notifications -> Bool,
+        roles -> Integer,
     }
 }
 
-diesel::joinable!(device -> guest (guest));
 diesel::joinable!(device -> state (state));
-diesel::joinable!(guest -> user (user));
+diesel::joinable!(device -> user (user));
 diesel::joinable!(meeting -> cafe (cafe));
 diesel::joinable!(meeting -> device (device));
-diesel::joinable!(meeting -> supporter (supporter));
+diesel::joinable!(meeting -> user (supporter));
 diesel::joinable!(message -> device (device));
 diesel::joinable!(message -> user (sender));
-diesel::joinable!(supporter -> user (user));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    cafe, device, guest, meeting, message, state, supporter, user,
+    cafe,
+    device,
+    meeting,
+    message,
+    state,
+    user,
 );
