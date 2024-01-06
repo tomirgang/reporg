@@ -9,7 +9,7 @@ pub enum Role {
     Guest = 1,
     Supporter = 2,
     Organizer = 4,
-    Admin = 8
+    Admin = 8,
 }
 
 pub fn check_permissions(required: Vec<Role>, session: Session) -> Result<(), Error> {

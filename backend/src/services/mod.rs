@@ -1,3 +1,3 @@
 pub mod cafe;
-pub mod user;
 pub mod login;
+pub mod user;

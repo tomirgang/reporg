@@ -1,21 +1,21 @@
 pub mod models;
 pub mod permissions;
 pub mod services;
+pub mod settings;
 
 use crate::services::cafe::{create_cafe, future_cafes};
-use crate::services::user::{tester_login, user_index};
 use crate::services::login::{logout, oidc_init, oidc_success};
+use crate::services::user::{tester_login, user_index};
+use crate::settings::Settings;
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
 use actix_web::dev::Server;
 use actix_web::{cookie::Key, http, web, App, HttpServer};
-use dotenvy::dotenv;
 use models::DbPool;
 use openidconnect::core::{CoreClient, CoreProviderMetadata};
 use openidconnect::{ClientId, ClientSecret, IssuerUrl, RedirectUrl};
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::net::TcpListener;
 // using reqwest ends tokio after metadata request :(
 use openidconnect::curl::http_client;
@@ -31,31 +31,28 @@ pub struct AppState {
     pub oidc_client: CoreClient,
     pub db_pool: DbPool,
     pub url_config: UrlConfig,
+    pub settings: Settings,
 }
 
 pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> Server {
-    dotenv().ok();
+    let settings = Settings::new().unwrap();
 
     let url_config = UrlConfig {
-        login_success: String::from("http://127.0.0.1:8001/mitarbeiter"),
-        logout_success: String::from("http://127.0.0.1:8001/mitarbeiter"),
+        login_success: String::from(format!(
+            "{}{}",
+            &settings.frontend.baseurl, &settings.frontend.login.success
+        )),
+        logout_success: String::from(format!(
+            "{}{}",
+            &settings.frontend.baseurl, &settings.frontend.logout.success
+        )),
     };
 
-    let oidc_client_id = ClientId::new(
-        env::var("OIDC_CLIENT_ID").expect("Missing the OIDC_CLIENT_ID environment variable."),
-    );
-    let oidc_client_secret = ClientSecret::new(
-        env::var("OIDC_CLIENT_SECRET")
-            .expect("Missing the OIDC_CLIENT_SECRET environment variable."),
-    );
-    let issuer_url = IssuerUrl::new(
-        env::var("OIDC_ISSUER_URL").expect("Missing the OIDC_ISSUER_URL environment variable."),
-    )
-    .expect("Invalid issuer URL");
-    let redirect_url = RedirectUrl::new(
-        env::var("OIDC_REDIRECT_URL").expect("Missing the OIDC_REDIRECT_URL environment variable."),
-    )
-    .expect("Invalid redirect URL");
+    let oidc_client_id = ClientId::new(settings.oidc.client.id.clone());
+    let oidc_client_secret = ClientSecret::new(settings.oidc.client.secret.clone());
+    let issuer_url = IssuerUrl::new(settings.oidc.url.issuer.clone()).expect("Invalid issuer URL");
+    let redirect_url =
+        RedirectUrl::new(settings.oidc.url.redirect.clone()).expect("Invalid redirect URL");
 
     let provider_metadata = CoreProviderMetadata::discover(&issuer_url, http_client)
         .expect("Resolving provider metadata failed!");
@@ -72,7 +69,7 @@ pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> 
 
     let server = HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin("http://127.0.0.1:8000")
+            .allowed_origin(&settings.cors.origin)
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
             .allowed_header(http::header::CONTENT_TYPE)
@@ -102,6 +99,7 @@ pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> 
                 oidc_client: client.to_owned(),
                 db_pool: db_pool.to_owned(),
                 url_config: url_config.to_owned(),
+                settings: settings.to_owned(),
             }))
     })
     .listen(listener)

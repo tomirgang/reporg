@@ -5,10 +5,8 @@ use actix_session::Session;
 use actix_web::error::{ErrorForbidden, ErrorInternalServerError};
 use actix_web::http::header;
 use actix_web::{get, web, HttpMessage, HttpRequest, HttpResponse, Responder};
-use dotenvy::dotenv;
 use log::info;
 use serde::{Deserialize, Serialize};
-use std::env;
 
 #[derive(Deserialize, Serialize)]
 struct BackendUser {
@@ -83,17 +81,18 @@ async fn tester_login(
     session: Session,
     params: web::Query<TesterLogin>,
     request: HttpRequest,
+    state: web::Data<AppState>,
 ) -> Result<impl Responder, actix_web::Error> {
     info!("Tester login: {:?}", params);
 
-    dotenv().ok();
-
-    let api_key = env::var("TESTER_API_KEY").map_err(|e| ErrorForbidden(e))?;
+    let api_key = state.settings.tester.key.clone();
     if api_key.len() == 0 {
+        log::error!("Invalid TESTER_API_KEY, len is 0!");
         return Err(ErrorForbidden("Invalid TESTER_API_KEY"));
     }
 
     if params.key != api_key {
+        log::error!("Invalid TESTER_API_KEY, wrong key!");
         return Err(ErrorForbidden("Invalid API key"));
     }
 
@@ -106,10 +105,13 @@ async fn tester_login(
     } else if params.role == "Guest" {
         Role::Guest
     } else {
+        log::error!("Invalid tester role!");
         return Err(ErrorForbidden("Invalid role!"));
     };
 
     session.insert("roles", vec![role])?;
+
+    log::info!("Tester login successful, using role {:?}", role);
 
     Identity::login(&request.extensions(), "Tester".into()).unwrap();
 

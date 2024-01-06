@@ -12,9 +12,10 @@ actix-session = { version = "0.8.0", features = ["actix-redis", "cookie-session"
 actix-web = "4.4.0"
 actix-web-httpauth = "0.8.1"
 chrono = { version = "0.4.31", features = ["serde"] }
+config = "0.13.4"
 diesel = { version = "2.1.4", features = ["postgres", "sqlite", "r2d2", "chrono", "time", "returning_clauses_for_sqlite_3_35"] }
 diesel_migrations = { version = "2.1.0", features = ["postgres", "sqlite"] }
-dotenvy = "0.15.7"
+dotenv = "0.15.0"
 env_logger = "0.10.1"
 log = { version = "0.4.20", features = ["serde"] }
 openidconnect = { version = "3.4.0", features = ["curl"] }

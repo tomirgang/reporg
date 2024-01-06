@@ -1,8 +1,9 @@
+use crate::models::user::{NewUser, User};
 use crate::permissions::Role;
 use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::error::ErrorBadRequest;
+use actix_web::error::{ErrorBadRequest, ErrorInternalServerError};
 use actix_web::http::header;
 use actix_web::{get, web, HttpMessage, HttpRequest, HttpResponse, Responder};
 use log::debug;
@@ -109,18 +110,34 @@ async fn oidc_success(
 
     let username = claims
         .preferred_username()
-        .map(|username| username.as_str())
+        .map(|username| username.to_string())
         .ok_or_else(|| ErrorBadRequest("Providing a preferred username is mandatory!"))?;
-    let _email = claims
+    let email = claims
         .email()
-        .map(|email| email.as_str())
+        .map(|email| email.to_string())
         .ok_or_else(|| ErrorBadRequest("Providing an e-mail address is mandatory!"))?;
 
-    // TODO: create user
+    let mut conn = data.db_pool.get().map_err(ErrorInternalServerError)?;
+    let mail = email.clone();
+    let user: Option<User> = web::block(move || User::find_by_email(&mail, &mut conn))
+        .await?
+        .map_err(ErrorInternalServerError)?;
 
-    Identity::login(&request.extensions(), username.into()).unwrap();
+    let user = match user {
+        Some(user) => user,
+        None => {
+            let new_user = NewUser::new(&username, &email, "");
+            let mut conn = data.db_pool.get().map_err(ErrorInternalServerError)?;
+            web::block(move || new_user.save(&mut conn))
+                .await?
+                .map_err(ErrorInternalServerError)?
+        }
+    };
+
+    Identity::login(&request.extensions(), username.into())?;
 
     session.insert("roles", vec![Role::Supporter])?;
+    session.insert("user", user)?;
 
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, data.url_config.login_success.clone()))

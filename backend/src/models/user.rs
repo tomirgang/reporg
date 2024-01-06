@@ -208,12 +208,8 @@ mod tests {
     use super::*;
     use crate::models::establish_connection;
 
-    fn dummy_user(connection: &mut SqliteConnection,) -> (NewUser, User) {
-        let new_user = NewUser::new(
-            "Jane Doe",
-            "jane.doe@example.com",
-            "09123 456 789"
-        );
+    fn dummy_user(connection: &mut SqliteConnection) -> (NewUser, User) {
+        let new_user = NewUser::new("Jane Doe", "jane.doe@example.com", "09123 456 789");
 
         let db_user = new_user
             .save(connection)
@@ -222,12 +218,8 @@ mod tests {
         (new_user, db_user)
     }
 
-    fn dummy_user_with_email(email: &str, connection: &mut SqliteConnection,) -> (NewUser, User) {
-        let new_user = NewUser::new(
-            "Jane Doe",
-            email,
-            "09123 456 789"
-        );
+    fn dummy_user_with_email(email: &str, connection: &mut SqliteConnection) -> (NewUser, User) {
+        let new_user = NewUser::new("Jane Doe", email, "09123 456 789");
 
         let db_user = new_user
             .save(connection)
@@ -325,12 +317,8 @@ mod tests {
     fn user_email_must_be_unique() {
         let mut connection = establish_connection().get().unwrap();
         let (_, _) = dummy_user(&mut connection);
-        
-        let new_user = NewUser::new(
-            "John Doe",
-            "jane.doe@example.com",
-            "09123 456 789"
-        );
+
+        let new_user = NewUser::new("John Doe", "jane.doe@example.com", "09123 456 789");
 
         let result = new_user.save(&mut connection);
 

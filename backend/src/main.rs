@@ -1,20 +1,19 @@
 use actix_session::storage::RedisSessionStore;
 use backend::models::establish_connection;
 use backend::run;
+use backend::settings::Settings;
 use chrono::Local;
 use core::str::FromStr;
-use dotenvy::dotenv;
 use env_logger::Builder;
 use log::LevelFilter;
-use std::env;
 use std::io::Write;
 use std::net::TcpListener;
 
 #[actix_web::main]
 async fn main() {
-    dotenv().ok();
+    let settings = Settings::new().unwrap();
 
-    let log_level = env::var("REPORG_LOG_LEVEL").unwrap_or("error".to_string());
+    let log_level = settings.log.level;
     let filter = LevelFilter::from_str(&log_level).expect("Invalid log level!");
 
     Builder::new()

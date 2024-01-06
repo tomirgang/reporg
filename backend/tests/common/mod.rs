@@ -1,11 +1,10 @@
 use actix_session::storage::RedisSessionStore;
 use backend::models::{establish_connection, DbPool};
+use backend::settings::Settings;
 use chrono::Local;
 use core::str::FromStr;
-use dotenvy::dotenv;
 use env_logger::Builder;
 use log::LevelFilter;
-use std::env;
 use std::io::Write;
 use std::net::TcpListener;
 
@@ -15,10 +14,11 @@ pub struct TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
-    dotenv().ok();
+    let settings = Settings::new().unwrap_or_else(|e| {
+        panic!("Settings error: {}", e);
+    });
 
-    let log_level = env::var("REPORG_LOG_LEVEL").unwrap_or("error".to_string());
-    let filter = LevelFilter::from_str(&log_level).expect("Invalid log level!");
+    let filter = LevelFilter::from_str(&settings.log.level).expect("Invalid log level!");
 
     let _res = Builder::new()
         .format(|buf, record| {
@@ -52,10 +52,9 @@ pub async fn spawn_app() -> TestApp {
 }
 
 pub async fn login(app: &TestApp, role: &str) -> reqwest::Client {
-    dotenv().ok();
+    let settings = Settings::new().unwrap();
 
-    let api_key =
-        env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
+    let api_key = settings.tester.key;
 
     let client = reqwest::Client::builder()
         .cookie_store(true)

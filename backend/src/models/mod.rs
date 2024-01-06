@@ -1,13 +1,12 @@
 pub mod cafe;
-pub mod user;
 pub mod schema;
+pub mod user;
 
+use crate::settings::Settings;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use dotenvy::dotenv;
 use r2d2::Pool;
-use std::env;
 use std::error::Error;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
@@ -22,11 +21,14 @@ pub fn run_migrations(
 }
 
 pub fn establish_connection() -> DbPool {
+    let settings = Settings::new().unwrap_or_else(|e| {
+        panic!("Settings error: {}", e);
+    });
+
     let database_url = if cfg!(test) {
         String::from(":memory:")
     } else {
-        dotenv().ok();
-        env::var("DATABASE_URL").expect("DATABASE_URL must be set")
+        settings.database.url.clone()
     };
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);

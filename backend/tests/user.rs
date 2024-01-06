@@ -1,9 +1,8 @@
 mod common;
 
+use backend::settings::Settings;
 use common::login;
-use dotenvy::dotenv;
 use log::debug;
-use std::env;
 
 #[tokio::test]
 async fn tester_login_admin_ok() {
@@ -31,12 +30,11 @@ async fn tester_login_guest_ok() {
 
 #[tokio::test]
 async fn tester_login_invalid_role_forbidden() {
+    let settings = Settings::new().unwrap();
+
     let app = common::spawn_app().await;
 
-    dotenv().ok();
-
-    let api_key =
-        env::var("TESTER_API_KEY").expect("Missing the TESTER_API_KEY environment variable.");
+    let api_key = settings.tester.key;
 
     let client = reqwest::Client::new();
 
