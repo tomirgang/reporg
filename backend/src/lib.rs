@@ -34,9 +34,12 @@ pub struct AppState {
     pub settings: Settings,
 }
 
-pub fn run(listener: TcpListener, redis: RedisSessionStore, db_pool: DbPool) -> Server {
-    let settings = Settings::new().unwrap();
-
+pub fn run(
+    listener: TcpListener,
+    redis: RedisSessionStore,
+    db_pool: DbPool,
+    settings: Settings,
+) -> Server {
     let url_config = UrlConfig {
         login_success: String::from(format!(
             "{}{}",

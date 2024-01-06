@@ -230,7 +230,7 @@ mod tests {
 
     #[test]
     fn insert_new_user() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (new_user, db_user) = dummy_user(&mut connection);
 
         assert!(db_user.id > 0);
@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn delete_user() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_user) = dummy_user(&mut connection);
 
         let user_id = db_user.id;
@@ -265,7 +265,7 @@ mod tests {
 
     #[test]
     fn find_user() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_user) = dummy_user(&mut connection);
 
         let user_id = db_user.id;
@@ -281,7 +281,7 @@ mod tests {
 
     #[test]
     fn find_user_by_email() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_user) = dummy_user(&mut connection);
 
         let user_email = db_user.email;
@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn find_user_invalid_id() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_user) = dummy_user(&mut connection);
 
         let user_id = db_user.id + 1;
@@ -315,7 +315,7 @@ mod tests {
 
     #[test]
     fn user_email_must_be_unique() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_user(&mut connection);
 
         let new_user = NewUser::new("John Doe", "jane.doe@example.com", "09123 456 789");
@@ -329,7 +329,7 @@ mod tests {
 
     #[test]
     fn list_users() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_user(&mut connection);
         let (_, _) = dummy_user_with_email("john.doe@example.com", &mut connection);
 
@@ -341,7 +341,7 @@ mod tests {
 
     #[test]
     fn page_users() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_user(&mut connection);
         let (_, user_obj) = dummy_user_with_email("john.doe@example.com", &mut connection);
         let (_, _) = dummy_user_with_email("jim.doe@example.com", &mut connection);
@@ -357,7 +357,7 @@ mod tests {
 
     #[test]
     fn update_user() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
 
         let (mut new_user, db_user) = dummy_user(&mut connection);
 

@@ -13,8 +13,7 @@ use std::net::TcpListener;
 async fn main() {
     let settings = Settings::new().unwrap();
 
-    let log_level = settings.log.level;
-    let filter = LevelFilter::from_str(&log_level).expect("Invalid log level!");
+    let filter = LevelFilter::from_str(&settings.log.level).expect("Invalid log level!");
 
     Builder::new()
         .format(|buf, record| {
@@ -31,7 +30,7 @@ async fn main() {
 
     log::debug!("Hello from reporg!");
 
-    let connection_pool = establish_connection();
+    let connection_pool = establish_connection(&settings.database.url);
 
     let address = format!("127.0.0.1:8000");
     let listener = TcpListener::bind(address).expect("Failed to bind to address.");
@@ -40,5 +39,5 @@ async fn main() {
         .await
         .unwrap();
 
-    let _server = run(listener, redis, connection_pool).await;
+    let _server = run(listener, redis, connection_pool, settings).await;
 }

@@ -2,7 +2,6 @@ pub mod cafe;
 pub mod schema;
 pub mod user;
 
-use crate::settings::Settings;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
@@ -20,18 +19,8 @@ pub fn run_migrations(
     Ok(())
 }
 
-pub fn establish_connection() -> DbPool {
-    let settings = Settings::new().unwrap_or_else(|e| {
-        panic!("Settings error: {}", e);
-    });
-
-    let database_url = if cfg!(test) {
-        String::from(":memory:")
-    } else {
-        settings.database.url.clone()
-    };
-
-    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+pub fn establish_connection(db_url: &str) -> DbPool {
+    let manager = ConnectionManager::<SqliteConnection>::new(db_url);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create DB pool.");
@@ -54,7 +43,7 @@ mod tests {
         use crate::models::schema::cafe::dsl::*;
         use diesel::prelude::*;
 
-        let pool = establish_connection();
+        let pool = establish_connection(":memory:");
         cafe.limit(1)
             .select(Cafe::as_select())
             .load(&mut pool.get().unwrap())

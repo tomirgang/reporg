@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn insert_new_cafe() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (new_cafe, db_cafe) = dummy_cafe(None, &mut connection);
 
         assert!(db_cafe.id > 0);
@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn delete_cafe() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_cafe) = dummy_cafe(None, &mut connection);
 
         let cafe_id = db_cafe.id;
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn find_cafe() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_cafe) = dummy_cafe(None, &mut connection);
 
         let cafe_id = db_cafe.id;
@@ -206,7 +206,7 @@ mod tests {
 
     #[test]
     fn find_cafe_invalid_id() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, db_cafe) = dummy_cafe(None, &mut connection);
 
         let cafe_id = db_cafe.id + 1;
@@ -224,7 +224,7 @@ mod tests {
 
     #[test]
     fn list_cafes() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_cafe(None, &mut connection);
         let (_, _) = dummy_cafe(None, &mut connection);
 
@@ -236,7 +236,7 @@ mod tests {
 
     #[test]
     fn page_cafes() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_cafe(None, &mut connection);
         let (_, cafe_obj) = dummy_cafe(None, &mut connection);
         let (_, _) = dummy_cafe(None, &mut connection);
@@ -252,7 +252,7 @@ mod tests {
 
     #[test]
     fn past_cafes() {
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
         let (_, _) = dummy_cafe(None, &mut connection);
         let (_, _) = dummy_cafe(None, &mut connection);
         let (_, _) = dummy_cafe(None, &mut connection);
@@ -269,7 +269,7 @@ mod tests {
     fn future_cafes() {
         use chrono::{Datelike, Timelike};
 
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
 
         let now = Utc::now().naive_utc();
         let future1 = now.with_year(now.year() + 1).unwrap();
@@ -294,7 +294,7 @@ mod tests {
     #[test]
     fn update_cafe() {
         use chrono::Datelike;
-        let mut connection = establish_connection().get().unwrap();
+        let mut connection = establish_connection(":memory:").get().unwrap();
 
         let (mut new_cafe, db_cafe) = dummy_cafe(None, &mut connection);
 

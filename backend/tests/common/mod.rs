@@ -33,7 +33,7 @@ pub async fn spawn_app() -> TestApp {
         .filter(None, filter)
         .try_init();
 
-    let connection_pool = establish_connection();
+    let connection_pool = establish_connection(":memory:");
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to random port.");
     let port = listener.local_addr().unwrap().port();
@@ -42,7 +42,7 @@ pub async fn spawn_app() -> TestApp {
         .await
         .unwrap();
 
-    let server = backend::run(listener, redis, connection_pool.clone());
+    let server = backend::run(listener, redis, connection_pool.clone(), settings);
     let _ = tokio::spawn(server);
     let address = format!("http://127.0.0.1:{}", port);
     TestApp {
