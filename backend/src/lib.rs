@@ -2,19 +2,24 @@ pub mod models;
 pub mod permissions;
 pub mod services;
 pub mod settings;
+pub mod error;
+mod migrator;
+pub mod entities;
 
 use crate::services::cafe::{create_cafe, future_cafes};
 use crate::services::login::{logout, oidc_init, oidc_success};
 use crate::services::user::{tester_login, user_index};
 use crate::settings::Settings;
+use crate::migrator::Migrator;
+use sea_orm_migration::MigratorTrait;
 use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::RedisSessionStore, SessionMiddleware};
 use actix_web::dev::Server;
 use actix_web::{cookie::Key, http, web, App, HttpServer};
-use models::DbPool;
 use openidconnect::core::{CoreClient, CoreProviderMetadata};
 use openidconnect::{ClientId, ClientSecret, IssuerUrl, RedirectUrl};
+use sea_orm::DatabaseConnection;
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 // using reqwest ends tokio after metadata request :(
@@ -29,17 +34,21 @@ pub struct UrlConfig {
 #[derive(Debug, Clone)]
 pub struct AppState {
     pub oidc_client: CoreClient,
-    pub db_pool: DbPool,
+    pub db: DatabaseConnection,
     pub url_config: UrlConfig,
     pub settings: Settings,
 }
 
-pub fn run(
+
+
+pub async fn run(
     listener: TcpListener,
     redis: RedisSessionStore,
-    db_pool: DbPool,
+    db: DatabaseConnection,
     settings: Settings,
 ) -> Server {
+    Migrator::refresh(&db).await.unwrap();
+
     let url_config = UrlConfig {
         login_success: String::from(format!(
             "{}{}",
@@ -100,7 +109,7 @@ pub fn run(
             .service(oidc_success)
             .app_data(web::Data::new(AppState {
                 oidc_client: client.to_owned(),
-                db_pool: db_pool.to_owned(),
+                db: db.to_owned(),
                 url_config: url_config.to_owned(),
                 settings: settings.to_owned(),
             }))

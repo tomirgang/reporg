@@ -1,12 +1,11 @@
-use crate::models::schema::cafe;
 use chrono::NaiveDateTime;
 use chrono::Utc;
-use diesel::prelude::*;
+use sea_orm::*;
 use serde::{Deserialize, Serialize};
+use crate::entities::cafe;
+use crate::error::ReporgError;
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
-#[diesel(table_name = cafe)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[derive(Serialize, Deserialize)]
 pub struct Cafe {
     pub id: i32,
     pub location: String,
@@ -15,94 +14,128 @@ pub struct Cafe {
 }
 
 impl Cafe {
-    pub fn delete(
-        &self,
-        connection: &mut SqliteConnection,
-    ) -> Result<usize, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
-        Ok(diesel::delete(cafe.filter(id.eq(self.id))).execute(connection)?)
+    fn from(model: cafe::Model) -> Result<Cafe, ReporgError> {
+        println!("Date form DB: {:?}", &model.date);
+        let date = NaiveDateTime::parse_from_str(&model.date, "%Y-%m-%d %H:%M:%S")
+        .map_err(|e| ReporgError::from(&e))?;
+
+        Ok(Cafe {
+            id: model.id,
+            location: model.location,
+            address: model.address,
+            date,
+        })
     }
 
-    pub fn find(
-        cafe_id: i32,
-        connection: &mut SqliteConnection,
-    ) -> Result<Option<Cafe>, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
-        let mut results = cafe
-            .limit(1)
-            .filter(id.eq(cafe_id))
-            .select(Cafe::as_select())
-            .load(connection)?;
+    fn from_opt(model: Option<cafe::Model>) -> Result<Option<Cafe>, ReporgError> {
+        match model {
+            Some(m) => {
+                let cafe = Cafe::from(m)?;
+                Ok(Some(cafe))
+            },
+            None => Ok(None),
+        }
+    }
 
-        let cafe_object = if results.len() > 0 {
-            Some(results.remove(0))
-        } else {
-            None
+    fn from_list(models: Vec<cafe::Model>) -> Result<Vec<Cafe>, ReporgError> {
+        let mut result = Vec::new();
+
+        for m in models.into_iter() {
+            let cafe = Cafe::from(m)?;
+            result.push(cafe);
+        }
+
+        Ok(result)
+    }
+
+    pub async fn delete(
+        &self,
+        db: &DatabaseConnection,
+    ) -> Result<DeleteResult, ReporgError> {
+        let entry = cafe::ActiveModel {
+            id: ActiveValue::Set(1), // The primary key must be set
+            ..Default::default()
         };
 
-        Ok(cafe_object)
+        entry.delete(db).await
+        .map_err(|e| ReporgError::from(&e))
     }
 
-    pub fn list(
-        limit: i64,
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<Cafe>, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
+    pub async fn find(
+        cafe_id: i32,
+        db: &DatabaseConnection,
+    ) -> Result<Option<Cafe>, ReporgError> {
+        let cafe: Option<cafe::Model> = cafe::Entity::find_by_id(cafe_id).one(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        cafe.limit(limit).select(Cafe::as_select()).load(connection)
+        Cafe::from_opt(cafe)
     }
 
-    pub fn page(
-        offset: i64,
-        limit: i64,
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<Cafe>, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
+    pub async fn list(
+        limit: u64,
+        db: &DatabaseConnection,
+    ) -> Result<Vec<Cafe>, ReporgError> {
+        let cafes: Vec<cafe::Model> = cafe::Entity::find().limit(limit).all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        cafe.offset(offset)
-            .limit(limit)
-            .select(Cafe::as_select())
-            .load(connection)
+        Cafe::from_list(cafes)
     }
 
-    pub fn past_cafes(
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<Cafe>, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
+    pub async fn page(
+        offset: u64,
+        limit: u64,
+        db: &DatabaseConnection,
+    ) -> Result<Vec<Cafe>, ReporgError> {
+        let cafes: Vec<cafe::Model> = cafe::Entity::find().offset(offset).limit(limit).all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        cafe.filter(date.lt(Utc::now().naive_utc()))
-            .select(Cafe::as_select())
-            .load(connection)
+        Cafe::from_list(cafes)
     }
 
-    pub fn future_cafes(
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<Cafe>, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
+    pub async fn past_cafes(
+        db: &DatabaseConnection,
+    ) -> Result<Vec<Cafe>, ReporgError> {
+        let cafes: Vec<cafe::Model> = cafe::Entity::find()
+        .filter(cafe::Column::Date.lt(Utc::now().naive_utc()))
+        .all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        cafe.filter(date.ge(Utc::now().naive_utc()))
-            .select(Cafe::as_select())
-            .load(connection)
+        Cafe::from_list(cafes)
     }
 
-    pub fn update(
+    pub async fn future_cafes(
+        db: &DatabaseConnection,
+    ) -> Result<Vec<Cafe>, ReporgError> {
+        let cafes: Vec<cafe::Model> = cafe::Entity::find()
+        .filter(cafe::Column::Date.gte(Utc::now().naive_utc()))
+        .all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
+
+        Ok(Cafe::from_list(cafes)?)
+    }
+
+    pub async fn update(
         &self,
         new_values: &NewCafe,
-        connection: &mut SqliteConnection,
-    ) -> Result<Cafe, diesel::result::Error> {
-        use crate::models::schema::cafe::dsl::*;
+        db: &DatabaseConnection,
+    ) -> Result<Cafe, ReporgError> {
+        let date = new_values.date.to_string();
+        println!("Save date: {:?}", date);
 
-        let db_cafe = diesel::update(cafe)
-            .filter(id.eq(self.id))
-            .set(new_values)
-            .returning(Cafe::as_returning())
-            .get_result(connection)?;
-        Ok(db_cafe)
+        let cafe = cafe::ActiveModel {
+            id: ActiveValue::Set(self.id),
+            location: ActiveValue::Set(new_values.location.clone()),
+            address: ActiveValue::Set(new_values.address.clone()),
+            date: ActiveValue::Set(date),
+        };
+        let result = cafe.update(db).await
+        .map_err(|e| ReporgError::from(&e))?;
+
+        Cafe::from(result)
     }
 }
 
-#[derive(Insertable, AsChangeset, Serialize, Deserialize)]
-#[diesel(table_name = cafe)]
+#[derive(Serialize, Deserialize)]
 pub struct NewCafe {
     pub location: String,
     pub address: String,
@@ -118,46 +151,62 @@ impl NewCafe {
         }
     }
 
-    pub fn save(&self, connection: &mut SqliteConnection) -> Result<Cafe, diesel::result::Error> {
-        let db_cafe = diesel::insert_into(cafe::table)
-            .values(self)
-            .returning(Cafe::as_returning())
-            .get_result(connection)?;
-        Ok(db_cafe)
+    pub async fn save(&mut self, db: &DatabaseConnection) -> Result<Cafe, ReporgError> {
+        let date = self.date.format("%Y-%m-%d %H:%M:%S").to_string();
+
+        let cafe = cafe::ActiveModel {
+            location: ActiveValue::Set(self.location.to_owned()),
+            address: ActiveValue::Set(self.address.to_owned()),
+            date: ActiveValue::Set(date),
+            ..Default::default()
+        };
+
+        let res = cafe::Entity::insert(cafe).exec(db).await
+        .map_err(|e| ReporgError::from(&e))?;
+
+        match Cafe::find(res.last_insert_id, db).await? {
+            Some(c) => Ok(c),
+            None => Err(ReporgError::new(&format!("[NewCafe.save] cafe with ID {} not found.", res.last_insert_id))),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use chrono::Timelike;
+
     use super::*;
     use crate::models::establish_connection;
 
-    fn dummy_cafe(
+    async fn dummy_cafe(
         cafe_date: Option<NaiveDateTime>,
-        connection: &mut SqliteConnection,
+        db: &DatabaseConnection,
     ) -> (NewCafe, Cafe) {
         let cafe_date = match cafe_date {
-            None => Utc::now().naive_utc(),
+            None => {
+                let date = Utc::now().naive_utc();
+                date.with_nanosecond(0).unwrap()
+            },
             Some(cafe_date) => cafe_date,
         };
 
-        let new_cafe = NewCafe::new(
+        let mut new_cafe = NewCafe::new(
             "Haus des Gastes",
             "Maria-Dorothea-Straße 8, 91161 Hilpoltstein",
             cafe_date,
         );
 
         let db_cafe = new_cafe
-            .save(connection)
+            .save(db).await
             .expect("Creation of dummy cafe failed.");
 
         (new_cafe, db_cafe)
     }
 
-    #[test]
-    fn insert_new_cafe() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (new_cafe, db_cafe) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn insert_new_cafe() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (new_cafe, db_cafe) = dummy_cafe(None, &db).await;
 
         assert!(db_cafe.id > 0);
         assert_eq!(new_cafe.location, db_cafe.location);
@@ -165,19 +214,19 @@ mod tests {
         assert_eq!(new_cafe.date, db_cafe.date);
     }
 
-    #[test]
-    fn delete_cafe() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_cafe) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn delete_cafe() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_cafe) = dummy_cafe(None, &db).await;
 
         let cafe_id = db_cafe.id;
 
-        match db_cafe.delete(&mut connection) {
-            Ok(cnt) => assert_eq!(cnt, 1),
+        match db_cafe.delete(&db).await {
+            Ok(res) => assert_eq!(res.rows_affected, 1),
             Err(e) => panic!("{}", e),
         }
 
-        match Cafe::find(cafe_id, &mut connection) {
+        match Cafe::find(cafe_id, &db).await {
             Ok(opt_cafe) => {
                 match opt_cafe {
                     Some(_) => panic!("Cafe was not deleted!"),
@@ -188,14 +237,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn find_cafe() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_cafe) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn find_cafe() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_cafe) = dummy_cafe(None, &db).await;
 
         let cafe_id = db_cafe.id;
 
-        match Cafe::find(cafe_id, &mut connection) {
+        match Cafe::find(cafe_id, &db).await {
             Ok(opt_cafe) => match opt_cafe {
                 Some(db_cafe) => assert_eq!(db_cafe.id, cafe_id),
                 None => panic!("Cafe was not found!"),
@@ -204,14 +253,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn find_cafe_invalid_id() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_cafe) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn find_cafe_invalid_id() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_cafe) = dummy_cafe(None, &db).await;
 
         let cafe_id = db_cafe.id + 1;
 
-        match Cafe::find(cafe_id, &mut connection) {
+        match Cafe::find(cafe_id, &db).await {
             Ok(opt_cafe) => {
                 match opt_cafe {
                     Some(_) => panic!("Wrong cafe was found!"),
@@ -222,26 +271,26 @@ mod tests {
         }
     }
 
-    #[test]
-    fn list_cafes() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_cafe(None, &mut connection);
-        let (_, _) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn list_cafes() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_cafe(None, &db).await;
+        let (_, _) = dummy_cafe(None, &db).await;
 
-        match Cafe::list(100, &mut connection) {
+        match Cafe::list(100, &db).await {
             Ok(cafes) => assert_eq!(cafes.len(), 2),
             Err(e) => panic!("{}", e),
         }
     }
 
-    #[test]
-    fn page_cafes() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_cafe(None, &mut connection);
-        let (_, cafe_obj) = dummy_cafe(None, &mut connection);
-        let (_, _) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn page_cafes() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_cafe(None, &db).await;
+        let (_, cafe_obj) = dummy_cafe(None, &db).await;
+        let (_, _) = dummy_cafe(None, &db).await;
 
-        match Cafe::page(1, 1, &mut connection) {
+        match Cafe::page(1, 1, &db).await {
             Ok(cafes) => {
                 assert_eq!(cafes.len(), 1);
                 assert_eq!(cafe_obj.id, cafes[0].id);
@@ -250,14 +299,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn past_cafes() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_cafe(None, &mut connection);
-        let (_, _) = dummy_cafe(None, &mut connection);
-        let (_, _) = dummy_cafe(None, &mut connection);
+    #[tokio::test]
+    async fn past_cafes() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_cafe(None, &db).await;
+        let (_, _) = dummy_cafe(None, &db).await;
+        let (_, _) = dummy_cafe(None, &db).await;
 
-        match Cafe::past_cafes(&mut connection) {
+        match Cafe::past_cafes(&db).await {
             Ok(cafes) => {
                 assert_eq!(cafes.len(), 3);
             }
@@ -265,12 +314,12 @@ mod tests {
         }
     }
 
-    #[test]
-    fn future_cafes() {
+    #[tokio::test]
+    async fn future_cafes() {
         use chrono::{Datelike, Timelike};
 
-        let mut connection = establish_connection(":memory:").get().unwrap();
-
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        
         let now = Utc::now().naive_utc();
         let future1 = now.with_year(now.year() + 1).unwrap();
         let future2 = if now.minute() < 58 {
@@ -279,11 +328,11 @@ mod tests {
             now.with_year(now.year() + 2).unwrap()
         };
 
-        let (_, _) = dummy_cafe(None, &mut connection);
-        let (_, _) = dummy_cafe(Some(future1), &mut connection);
-        let (_, _) = dummy_cafe(Some(future2), &mut connection);
+        let (_, _) = dummy_cafe(None, &db).await;
+        let (_, _) = dummy_cafe(Some(future1), &db).await;
+        let (_, _) = dummy_cafe(Some(future2), &db).await;
 
-        match Cafe::future_cafes(&mut connection) {
+        match Cafe::future_cafes(&db).await {
             Ok(cafes) => {
                 assert_eq!(cafes.len(), 2);
             }
@@ -291,27 +340,28 @@ mod tests {
         }
     }
 
-    #[test]
-    fn update_cafe() {
+    #[tokio::test]
+    async fn update_cafe() {
         use chrono::Datelike;
-        let mut connection = establish_connection(":memory:").get().unwrap();
-
-        let (mut new_cafe, db_cafe) = dummy_cafe(None, &mut connection);
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        
+        let (mut new_cafe, db_cafe) = dummy_cafe(None, &db).await;
 
         new_cafe.location = String::from("AWO Soziales Kompetenz - Zentrum");
         new_cafe.address = String::from("Sankt-Jakob-Straße 12, 91161 Hilpoltstein");
         let now = Utc::now().naive_utc();
-        new_cafe.date = now.with_year(now.year() + 1).unwrap();
+        new_cafe.date = now.with_year(now.year() + 1).unwrap()
+        .with_nanosecond(0).unwrap();
 
         let db_cafe = db_cafe
-            .update(&new_cafe, &mut connection)
+            .update(&new_cafe, &db).await
             .expect("Update of cafe failed!");
 
         assert_eq!(db_cafe.location, new_cafe.location);
         assert_eq!(db_cafe.address, new_cafe.address);
         assert_eq!(db_cafe.date, new_cafe.date);
 
-        let db_cafe = Cafe::find(db_cafe.id, &mut connection)
+        let db_cafe = Cafe::find(db_cafe.id, &db).await
             .expect("Cafe not found!")
             .unwrap();
 

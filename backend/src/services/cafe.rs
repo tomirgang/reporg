@@ -10,11 +10,7 @@ use log::debug;
 
 #[get("/")]
 pub async fn future_cafes(state: web::Data<AppState>) -> actix_web::Result<impl Responder> {
-    let cafes = web::block(move || {
-        let mut conn = state.db_pool.get().expect("DB connection error");
-        Cafe::future_cafes(&mut conn)
-    })
-    .await?
+    let cafes = Cafe::future_cafes(&state.db).await
     .map_err(error::ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(&cafes))
@@ -49,13 +45,9 @@ pub async fn create_cafe(
 
     match NaiveDateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M") {
         Ok(date) => {
-            let new_cafe = NewCafe::new(&location, &address, date);
+            let mut new_cafe = NewCafe::new(&location, &address, date);
 
-            let cafe = web::block(move || {
-                let mut conn = state.db_pool.get().expect("DB connection error");
-                new_cafe.save(&mut conn)
-            })
-            .await?
+            let cafe = new_cafe.save(&state.db).await
             .map_err(error::ErrorInternalServerError)?;
 
             let response = HttpResponse::Ok().json(&cafe);

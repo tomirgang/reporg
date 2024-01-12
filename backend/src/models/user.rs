@@ -1,134 +1,170 @@
-use crate::models::schema::user;
 use crate::permissions::Role;
-use diesel::prelude::*;
+use sea_orm::*;
 use serde::{Deserialize, Serialize};
+use crate::entities::user;
+use crate::error::ReporgError;
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
-#[diesel(table_name = user)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub name: String,
     pub email: String,
-    pub phone: String,
+    pub phone: Option<String>,
     pub notifications: bool,
     pub roles: i32,
 }
 
 impl User {
-    pub fn delete(
-        &self,
-        connection: &mut SqliteConnection,
-    ) -> Result<usize, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
-        Ok(diesel::delete(user.filter(id.eq(self.id))).execute(connection)?)
+    fn from(model: user::Model) -> Result<User, ReporgError> {
+        Ok(User {
+            id: model.id,
+            name: model.name,
+            email: model.email,
+            phone: model.phone,
+            notifications: model.notification,
+            roles: model.roles,
+        })
     }
 
-    pub fn find(
+    fn from_opt(model: Option<user::Model>) -> Result<Option<User>, ReporgError> {
+        match model {
+            Some(m) => {
+                let user = User::from(m)?;
+                Ok(Some(user))
+            },
+            None => Ok(None),
+        }
+    }
+
+    fn from_list(models: Vec<user::Model>) -> Result<Vec<User>, ReporgError> {
+        let mut result = Vec::new();
+
+        for m in models.into_iter() {
+            let cafe = User::from(m)?;
+            result.push(cafe);
+        }
+
+        Ok(result)
+    }
+
+    pub async fn delete(
+        &self,
+        db: &DatabaseConnection,
+    ) -> Result<DeleteResult, ReporgError> {
+        let entry = user::ActiveModel {
+            id: ActiveValue::Set(1), // The primary key must be set
+            ..Default::default()
+        };
+
+        entry.delete(db).await
+        .map_err(|e| ReporgError::from(&e))
+    }
+
+    pub async fn find(
         user_id: i32,
-        connection: &mut SqliteConnection,
-    ) -> Result<Option<User>, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
-        let mut results = user
-            .limit(1)
-            .filter(id.eq(user_id))
-            .select(User::as_select())
-            .load(connection)?;
+        db: &DatabaseConnection,
+    ) -> Result<Option<User>, ReporgError> {
+        let user: Option<user::Model> = user::Entity::find_by_id(user_id).one(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        let user_object = if results.len() > 0 {
-            Some(results.remove(0))
-        } else {
-            None
-        };
-
-        Ok(user_object)
+        User::from_opt(user)
     }
 
-    pub fn find_by_email(
+    pub async fn find_by_email(
         user_email: &str,
-        connection: &mut SqliteConnection,
-    ) -> Result<Option<User>, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
-        let mut results = user
-            .limit(1)
-            .filter(email.eq(user_email))
-            .select(User::as_select())
-            .load(connection)?;
+        db: &DatabaseConnection,
+    ) -> Result<Option<User>, ReporgError> {
+        let user: Option<user::Model> = user::Entity::find()
+        .filter(user::Column::Email.eq(user_email))
+        .one(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        let user_object = if results.len() > 0 {
-            Some(results.remove(0))
-        } else {
-            None
-        };
-
-        Ok(user_object)
+        User::from_opt(user)
     }
 
-    pub fn list(
-        limit: i64,
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<User>, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
+    pub async fn list(
+        limit: u64,
+        db: &DatabaseConnection,
+    ) -> Result<Vec<User>, ReporgError> {
+        let users: Vec<user::Model> = user::Entity::find().limit(limit).all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        user.limit(limit).select(User::as_select()).load(connection)
+        User::from_list(users)
     }
 
-    pub fn page(
-        offset: i64,
-        limit: i64,
-        connection: &mut SqliteConnection,
-    ) -> Result<Vec<User>, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
+    pub async fn page(
+        offset: u64,
+        limit: u64,
+        db: &DatabaseConnection,
+    ) -> Result<Vec<User>, ReporgError> {
+        let users: Vec<user::Model> = user::Entity::find().offset(offset).limit(limit).all(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        user.offset(offset)
-            .limit(limit)
-            .select(User::as_select())
-            .load(connection)
+        User::from_list(users)
     }
 
-    pub fn update(
+    pub async fn update(
         &self,
-        new_values: &NewUser,
-        connection: &mut SqliteConnection,
-    ) -> Result<User, diesel::result::Error> {
-        use crate::models::schema::user::dsl::*;
+        new_values: &mut NewUser,
+        db: &DatabaseConnection,
+    ) -> Result<User, ReporgError> {
+        let user = user::ActiveModel {
+            id: ActiveValue::Set(self.id),
+            name: ActiveValue::Set(new_values.name.to_owned()),
+            email: ActiveValue::Set(new_values.email.to_owned()),
+            phone: ActiveValue::Set(new_values.phone.to_owned()),
+            notification: ActiveValue::Set(new_values.notifications),
+            roles: ActiveValue::Set(new_values.roles),
+        };
+        let result = user.update(db).await
+        .map_err(|e| ReporgError::from(&e))?;
 
-        let db_user = diesel::update(user)
-            .filter(id.eq(self.id))
-            .set(new_values)
-            .returning(User::as_returning())
-            .get_result(connection)?;
-        Ok(db_user)
+        User::from(result)
     }
 }
 
-#[derive(Insertable, AsChangeset, Serialize, Deserialize)]
-#[diesel(table_name = user)]
+#[derive(Serialize, Deserialize)]
 pub struct NewUser {
     pub name: String,
     pub email: String,
-    pub phone: String,
+    pub phone: Option<String>,
     pub notifications: bool,
     pub roles: i32,
 }
 
 impl NewUser {
-    pub fn new(name: &str, email: &str, phone: &str) -> NewUser {
+    pub fn new(name: &str, email: &str, phone: Option<&str>) -> NewUser {
+        let phone = match phone {
+            Some(p) => Some(p.to_string()),
+            None => None,
+        };
+
         NewUser {
             name: name.to_string(),
             email: email.to_string(),
-            phone: phone.to_string(),
+            phone,
             notifications: true,
             roles: 0,
         }
     }
 
-    pub fn save(&self, connection: &mut SqliteConnection) -> Result<User, diesel::result::Error> {
-        let db_user = diesel::insert_into(user::table)
-            .values(self)
-            .returning(User::as_returning())
-            .get_result(connection)?;
-        Ok(db_user)
+    pub async fn save(&mut self, db: &DatabaseConnection) -> Result<User, ReporgError> {
+        let user = user::ActiveModel {
+            name: ActiveValue::Set(self.name.to_owned()),
+            email: ActiveValue::Set(self.email.to_owned()),
+            phone: ActiveValue::Set(self.phone.to_owned()),
+            notification: ActiveValue::Set(self.notifications),
+            roles: ActiveValue::Set(self.roles),
+            ..Default::default()
+        };
+
+        let res = user::Entity::insert(user).exec(db).await
+        .map_err(|e| ReporgError::from(&e))?;
+
+        match User::find(res.last_insert_id, db).await? {
+            Some(c) => Ok(c),
+            None => Err(ReporgError::new(&format!("[NewUser.save] user with ID {} not found.", res.last_insert_id))),
+        }
     }
 }
 
@@ -208,30 +244,30 @@ mod tests {
     use super::*;
     use crate::models::establish_connection;
 
-    fn dummy_user(connection: &mut SqliteConnection) -> (NewUser, User) {
-        let new_user = NewUser::new("Jane Doe", "jane.doe@example.com", "09123 456 789");
+    async fn dummy_user(db: &DatabaseConnection) -> (NewUser, User) {
+        let mut new_user = NewUser::new("Jane Doe", "jane.doe@example.com", Some("09123 456 789"));
 
         let db_user = new_user
-            .save(connection)
+            .save(db).await
             .expect("Creation of dummy user failed.");
 
         (new_user, db_user)
     }
 
-    fn dummy_user_with_email(email: &str, connection: &mut SqliteConnection) -> (NewUser, User) {
-        let new_user = NewUser::new("Jane Doe", email, "09123 456 789");
+    async fn dummy_user_with_email(email: &str, db: &DatabaseConnection) -> (NewUser, User) {
+        let mut new_user = NewUser::new("Jane Doe", email, Some("09123 456 789"));
 
         let db_user = new_user
-            .save(connection)
+            .save(db).await
             .expect("Creation of dummy user with email failed.");
 
         (new_user, db_user)
     }
 
-    #[test]
-    fn insert_new_user() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (new_user, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn insert_new_user() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (new_user, db_user) = dummy_user(&db).await;
 
         assert!(db_user.id > 0);
         assert_eq!(new_user.name, db_user.name);
@@ -240,19 +276,19 @@ mod tests {
         assert_eq!(new_user.roles, 0);
     }
 
-    #[test]
-    fn delete_user() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn delete_user() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_user) = dummy_user(&db).await;
 
         let user_id = db_user.id;
 
-        match db_user.delete(&mut connection) {
-            Ok(cnt) => assert_eq!(cnt, 1),
+        match db_user.delete(&db).await {
+            Ok(res) => assert_eq!(res.rows_affected, 1),
             Err(e) => panic!("{}", e),
         }
 
-        match User::find(user_id, &mut connection) {
+        match User::find(user_id, &db).await {
             Ok(opt_user) => {
                 match opt_user {
                     Some(_) => panic!("User was not deleted!"),
@@ -263,14 +299,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn find_user() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn find_user() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_user) = dummy_user(&db).await;
 
         let user_id = db_user.id;
 
-        match User::find(user_id, &mut connection) {
+        match User::find(user_id, &db).await {
             Ok(opt_user) => match opt_user {
                 Some(db_user) => assert_eq!(db_user.id, user_id),
                 None => panic!("User was not found!"),
@@ -279,14 +315,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn find_user_by_email() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn find_user_by_email() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_user) = dummy_user(&db).await;
 
         let user_email = db_user.email;
 
-        match User::find_by_email(&user_email, &mut connection) {
+        match User::find_by_email(&user_email, &db).await {
             Ok(opt_user) => match opt_user {
                 Some(db_user) => assert_eq!(db_user.email, user_email),
                 None => panic!("User was not found!"),
@@ -295,14 +331,14 @@ mod tests {
         }
     }
 
-    #[test]
-    fn find_user_invalid_id() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn find_user_invalid_id() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, db_user) = dummy_user(&db).await;
 
         let user_id = db_user.id + 1;
 
-        match User::find(user_id, &mut connection) {
+        match User::find(user_id, &db).await {
             Ok(opt_user) => {
                 match opt_user {
                     Some(_) => panic!("Wrong user was found!"),
@@ -313,40 +349,40 @@ mod tests {
         }
     }
 
-    #[test]
-    fn user_email_must_be_unique() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn user_email_must_be_unique() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_user(&db).await;
 
-        let new_user = NewUser::new("John Doe", "jane.doe@example.com", "09123 456 789");
+        let mut new_user = NewUser::new("John Doe", "jane.doe@example.com", Some("09123 456 789"));
 
-        let result = new_user.save(&mut connection);
+        let result = new_user.save(&db).await;
 
         if let Ok(_) = result {
             panic!("Two users with same email");
         }
     }
 
-    #[test]
-    fn list_users() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_user(&mut connection);
-        let (_, _) = dummy_user_with_email("john.doe@example.com", &mut connection);
+    #[tokio::test]
+    async fn list_users() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_user(&db).await;
+        let (_, _) = dummy_user_with_email("john.doe@example.com", &db).await;
 
-        match User::list(100, &mut connection) {
+        match User::list(100, &db).await {
             Ok(users) => assert_eq!(users.len(), 2),
             Err(e) => panic!("{}", e),
         }
     }
 
-    #[test]
-    fn page_users() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-        let (_, _) = dummy_user(&mut connection);
-        let (_, user_obj) = dummy_user_with_email("john.doe@example.com", &mut connection);
-        let (_, _) = dummy_user_with_email("jim.doe@example.com", &mut connection);
+    #[tokio::test]
+    async fn page_users() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        let (_, _) = dummy_user(&db).await;
+        let (_, user_obj) = dummy_user_with_email("john.doe@example.com", &db).await;
+        let (_, _) = dummy_user_with_email("jim.doe@example.com", &db).await;
 
-        match User::page(1, 1, &mut connection) {
+        match User::page(1, 1, &db).await {
             Ok(users) => {
                 assert_eq!(users.len(), 1);
                 assert_eq!(user_obj.id, users[0].id);
@@ -355,20 +391,20 @@ mod tests {
         }
     }
 
-    #[test]
-    fn update_user() {
-        let mut connection = establish_connection(":memory:").get().unwrap();
-
-        let (mut new_user, db_user) = dummy_user(&mut connection);
+    #[tokio::test]
+    async fn update_user() {
+        let db = establish_connection("sqlite::memory:").await.unwrap();
+        
+        let (mut new_user, db_user) = dummy_user(&db).await;
 
         new_user.name = String::from("Max Mustermann");
         new_user.email = String::from("max.mustermann@web.de");
-        new_user.phone = String::from("0151 1234 5678");
+        new_user.phone = Some(String::from("0151 1234 5678"));
         new_user.notifications = false;
         new_user.roles = 15;
 
         let db_user = db_user
-            .update(&new_user, &mut connection)
+            .update(&mut new_user, &db).await
             .expect("Update of user failed!");
 
         assert_eq!(db_user.name, new_user.name);
@@ -377,7 +413,7 @@ mod tests {
         assert_eq!(db_user.notifications, new_user.notifications);
         assert_eq!(db_user.roles, new_user.roles);
 
-        let db_user = User::find(db_user.id, &mut connection)
+        let db_user = User::find(db_user.id, &db).await
             .expect("User not found!")
             .unwrap();
 

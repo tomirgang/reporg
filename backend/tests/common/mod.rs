@@ -1,7 +1,8 @@
 use actix_session::storage::RedisSessionStore;
-use backend::models::{establish_connection, DbPool};
+use backend::models::establish_connection;
 use backend::settings::Settings;
 use chrono::Local;
+use sea_orm::DatabaseConnection;
 use core::str::FromStr;
 use env_logger::Builder;
 use log::LevelFilter;
@@ -10,7 +11,7 @@ use std::net::TcpListener;
 
 pub struct TestApp {
     pub address: String,
-    pub db_pool: DbPool,
+    pub db: DatabaseConnection,
 }
 
 pub async fn spawn_app() -> TestApp {
@@ -33,7 +34,7 @@ pub async fn spawn_app() -> TestApp {
         .filter(None, filter)
         .try_init();
 
-    let connection_pool = establish_connection(":memory:");
+    let db = establish_connection("sqlite::memory:").await.unwrap();
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to random port.");
     let port = listener.local_addr().unwrap().port();
@@ -42,12 +43,12 @@ pub async fn spawn_app() -> TestApp {
         .await
         .unwrap();
 
-    let server = backend::run(listener, redis, connection_pool.clone(), settings);
+    let server = backend::run(listener, redis, db.clone(), settings).await;
     let _ = tokio::spawn(server);
     let address = format!("http://127.0.0.1:{}", port);
     TestApp {
         address,
-        db_pool: connection_pool,
+        db,
     }
 }
 

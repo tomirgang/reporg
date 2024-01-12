@@ -117,20 +117,16 @@ async fn oidc_success(
         .map(|email| email.to_string())
         .ok_or_else(|| ErrorBadRequest("Providing an e-mail address is mandatory!"))?;
 
-    let mut conn = data.db_pool.get().map_err(ErrorInternalServerError)?;
     let mail = email.clone();
-    let user: Option<User> = web::block(move || User::find_by_email(&mail, &mut conn))
-        .await?
+    let user: Option<User> = User::find_by_email(&mail, &data.db).await
         .map_err(ErrorInternalServerError)?;
 
     let user = match user {
         Some(user) => user,
         None => {
-            let new_user = NewUser::new(&username, &email, "");
-            let mut conn = data.db_pool.get().map_err(ErrorInternalServerError)?;
-            web::block(move || new_user.save(&mut conn))
-                .await?
-                .map_err(ErrorInternalServerError)?
+            let mut new_user = NewUser::new(&username, &email, None);
+            new_user.save(&data.db).await
+            .map_err(ErrorInternalServerError)?
         }
     };
 
