@@ -30,7 +30,7 @@ async fn main() {
 
     log::debug!("Hello from reporg!");
 
-    let connection_pool = establish_connection(&settings.database.url);
+    let db = establish_connection(&settings.database.url).await.unwrap();
 
     let address = format!("127.0.0.1:8000");
     let listener = TcpListener::bind(address).expect("Failed to bind to address.");
@@ -39,5 +39,5 @@ async fn main() {
         .await
         .unwrap();
 
-    let _server = run(listener, redis, connection_pool, settings).await;
+    run(listener, redis, db, settings).await.await.unwrap();
 }

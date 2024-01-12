@@ -1,7 +1,0 @@
--- Your SQL goes here
-CREATE TABLE state (
-  id INTEGER NOT NULL PRIMARY KEY,
-  name VARCHAR(30) NOT NULL,
-  description VARCHAR NOT NULL,
-  final BOOLEAN NOT NULL DEFAULT 0
-)
