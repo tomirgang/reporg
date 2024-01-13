@@ -16,6 +16,17 @@ pub struct User {
 }
 
 impl User {
+    fn to_model(&self) -> user::ActiveModel {
+        user::ActiveModel {
+            id: ActiveValue::Set(self.id),
+            name: ActiveValue::Set(self.name.to_owned()),
+            email: ActiveValue::Set(self.email.to_owned()),
+            phone: ActiveValue::Set(self.phone.to_owned()),
+            notification: ActiveValue::Set(self.notifications),
+            roles: ActiveValue::Set(self.roles),
+        }
+    }
+
     fn from(model: user::Model) -> Result<User, ReporgError> {
         Ok(User {
             id: model.id,
@@ -86,7 +97,7 @@ impl User {
     pub async fn list(
         limit: u64,
         db: &DatabaseConnection,
-        roles: &Option<Vec<Role>>
+        roles: Option<i32>
     ) -> Result<Vec<User>, ReporgError> {
         let users: Vec<user::Model> = user::Entity::find().limit(limit).all(db).await
         .map_err(|e| ReporgError::from(&e))?;
@@ -103,7 +114,7 @@ impl User {
         offset: u64,
         limit: u64,
         db: &DatabaseConnection,
-        roles: &Option<Vec<Role>>
+        roles: Option<i32>
     ) -> Result<Vec<User>, ReporgError> {
         let users: Vec<user::Model> = user::Entity::find().offset(offset).limit(limit).all(db).await
         .map_err(|e| ReporgError::from(&e))?;
@@ -121,14 +132,19 @@ impl User {
         new_values: &mut NewUser,
         db: &DatabaseConnection,
     ) -> Result<User, ReporgError> {
-        let user = user::ActiveModel {
-            id: ActiveValue::Set(self.id),
-            name: ActiveValue::Set(new_values.name.to_owned()),
-            email: ActiveValue::Set(new_values.email.to_owned()),
-            phone: ActiveValue::Set(new_values.phone.to_owned()),
-            notification: ActiveValue::Set(new_values.notifications),
-            roles: ActiveValue::Set(new_values.roles),
-        };
+        let mut user = new_values.to_model();
+        user.id = ActiveValue::Set(self.id);
+        let result = user.update(db).await
+        .map_err(|e| ReporgError::from(&e))?;
+
+        User::from(result)
+    }
+
+    pub async fn save(
+        &self,
+        db: &DatabaseConnection,
+    ) -> Result<User, ReporgError> {
+        let user = self.to_model();
         let result = user.update(db).await
         .map_err(|e| ReporgError::from(&e))?;
 
@@ -161,15 +177,19 @@ impl NewUser {
         }
     }
 
-    pub async fn save(&mut self, db: &DatabaseConnection) -> Result<User, ReporgError> {
-        let user = user::ActiveModel {
+    fn to_model(&self) -> user::ActiveModel {
+        user::ActiveModel {
             name: ActiveValue::Set(self.name.to_owned()),
             email: ActiveValue::Set(self.email.to_owned()),
             phone: ActiveValue::Set(self.phone.to_owned()),
             notification: ActiveValue::Set(self.notifications),
             roles: ActiveValue::Set(self.roles),
             ..Default::default()
-        };
+        }
+    }
+
+    pub async fn save(&self, db: &DatabaseConnection) -> Result<User, ReporgError> {
+        let user = self.to_model();
 
         let res = user::Entity::insert(user).exec(db).await
         .map_err(|e| ReporgError::from(&e))?;
@@ -230,24 +250,6 @@ pub trait Roles {
     fn set_guest(&mut self, value: bool) {
         self.set_role(Role::Admin, value);
     }
-
-    fn get_roles_list(&self) -> Vec<Role> {
-        let mut roles = Vec::new();
-        if self.is_admin() {
-            roles.push(Role::Admin);
-        }
-        if self.is_organizer() {
-            roles.push(Role::Organizer);
-        }
-        if self.is_supporter() {
-            roles.push(Role::Supporter);
-        }
-        if self.is_guest() {
-            roles.push(Role::Guest);
-        }
-
-        roles
-    }
 }
 
 impl Roles for User {
@@ -276,7 +278,7 @@ mod tests {
     use crate::models::establish_connection;
 
     async fn dummy_user(db: &DatabaseConnection) -> (NewUser, User) {
-        let mut new_user = NewUser::new("Jane Doe", "jane.doe@example.com", Some("09123 456 789"));
+        let new_user = NewUser::new("Jane Doe", "jane.doe@example.com", Some("09123 456 789"));
 
         let db_user = new_user
             .save(db).await
@@ -286,7 +288,7 @@ mod tests {
     }
 
     async fn dummy_user_with_email(email: &str, db: &DatabaseConnection) -> (NewUser, User) {
-        let mut new_user = NewUser::new("Jane Doe", email, Some("09123 456 789"));
+        let new_user = NewUser::new("Jane Doe", email, Some("09123 456 789"));
 
         let db_user = new_user
             .save(db).await
@@ -385,7 +387,7 @@ mod tests {
         let db = establish_connection("sqlite::memory:").await.unwrap();
         let (_, _) = dummy_user(&db).await;
 
-        let mut new_user = NewUser::new("John Doe", "jane.doe@example.com", Some("09123 456 789"));
+        let new_user = NewUser::new("John Doe", "jane.doe@example.com", Some("09123 456 789"));
 
         let result = new_user.save(&db).await;
 
@@ -400,7 +402,7 @@ mod tests {
         let (_, _) = dummy_user(&db).await;
         let (_, _) = dummy_user_with_email("john.doe@example.com", &db).await;
 
-        match User::list(100, &db, &None).await {
+        match User::list(100, &db, None).await {
             Ok(users) => assert_eq!(users.len(), 2),
             Err(e) => panic!("{}", e),
         }
@@ -413,7 +415,7 @@ mod tests {
         let (_, user_obj) = dummy_user_with_email("john.doe@example.com", &db).await;
         let (_, _) = dummy_user_with_email("jim.doe@example.com", &db).await;
 
-        match User::page(1, 1, &db, &None).await {
+        match User::page(1, 1, &db, None).await {
             Ok(users) => {
                 assert_eq!(users.len(), 1);
                 assert_eq!(user_obj.id, users[0].id);

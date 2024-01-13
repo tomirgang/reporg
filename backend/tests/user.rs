@@ -81,8 +81,8 @@ async fn tester_login_session_stored() {
     assert!(response.status().is_success());
 
     let content = response.text().await.expect("Getting body failed!");
-
-    assert!(content.contains("Organizer"));
+    println!("{}", content);
+    assert!(content.contains("tester@example.com"));
 }
 
 #[tokio::test]

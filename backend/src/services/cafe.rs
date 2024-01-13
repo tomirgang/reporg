@@ -30,7 +30,7 @@ pub async fn create_cafe(
     _user: Identity, // require user login
     session: Session,
 ) -> actix_web::Result<impl Responder> {
-    check_permissions(vec![Role::Organizer, Role::Admin], session)?;
+    check_permissions(Role::Organizer as i32 | Role::Admin as i32, session)?;
 
     let actix_web::web::Form(NewCafeData {
         location,

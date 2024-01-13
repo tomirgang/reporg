@@ -9,7 +9,6 @@ pub struct ReporgError {
 }
 
 impl ReporgError {
-    
     /// Create a new error with the given message as description.
     pub fn new(msg: &str) -> ReporgError {
         ReporgError{details: msg.to_string()}

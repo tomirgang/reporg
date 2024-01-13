@@ -118,14 +118,8 @@ impl Cafe {
         new_values: &NewCafe,
         db: &DatabaseConnection,
     ) -> Result<Cafe, ReporgError> {
-        let date = new_values.date.to_string();
-        
-        let cafe = cafe::ActiveModel {
-            id: ActiveValue::Set(self.id),
-            location: ActiveValue::Set(new_values.location.clone()),
-            address: ActiveValue::Set(new_values.address.clone()),
-            date: ActiveValue::Set(date),
-        };
+        let mut cafe = new_values.to_model();
+        cafe.id = ActiveValue::Set(self.id);
         let result = cafe.update(db).await
         .map_err(|e| ReporgError::from(&e))?;
 
@@ -149,15 +143,19 @@ impl NewCafe {
         }
     }
 
-    pub async fn save(&mut self, db: &DatabaseConnection) -> Result<Cafe, ReporgError> {
+    fn to_model(&self) -> cafe::ActiveModel {
         let date = self.date.format("%Y-%m-%d %H:%M:%S").to_string();
-
-        let cafe = cafe::ActiveModel {
-            location: ActiveValue::Set(self.location.to_owned()),
-            address: ActiveValue::Set(self.address.to_owned()),
+        
+        cafe::ActiveModel {
+            location: ActiveValue::Set(self.location.clone()),
+            address: ActiveValue::Set(self.address.clone()),
             date: ActiveValue::Set(date),
             ..Default::default()
-        };
+        }
+    }
+
+    pub async fn save(&mut self, db: &DatabaseConnection) -> Result<Cafe, ReporgError> {
+        let cafe = self.to_model();
 
         let res = cafe::Entity::insert(cafe).exec(db).await
         .map_err(|e| ReporgError::from(&e))?;

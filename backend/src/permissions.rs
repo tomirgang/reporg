@@ -4,6 +4,8 @@ use actix_web::Error;
 use log::debug;
 use serde::{Deserialize, Serialize};
 
+use crate::models::user::{User, Roles};
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Copy)]
 pub enum Role {
     Guest = 1,
@@ -12,21 +14,20 @@ pub enum Role {
     Admin = 8,
 }
 
-pub fn check_permissions(required: Vec<Role>, session: Session) -> Result<(), Error> {
-    let roles = session
-        .get::<Vec<Role>>("roles")?
-        .ok_or_else(|| ErrorForbidden("No roles found!"))?;
+pub fn check_permissions(required: i32, session: Session) -> Result<(), Error> {
+    let user = session
+        .get::<User>("user")?
+        .ok_or_else(|| ErrorForbidden("No user found!"))?;
+    let roles = user.get_roles();
 
     debug!(
         "Check permissions: required: {:?}, available: {:?}",
         required, roles
     );
 
-    for role in required.iter() {
-        if roles.iter().any(|&r| r == *role) {
-            return Ok(());
-        }
+    if roles & required > 0 {
+        return Ok(())
+    } else {
+        Err(ErrorForbidden("Required role not found!"))
     }
-
-    Err(ErrorForbidden("Required role not found!"))
 }

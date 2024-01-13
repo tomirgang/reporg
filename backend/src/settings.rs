@@ -63,6 +63,11 @@ pub struct Members {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct Backend {
+    pub baseurl: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub database: Database,
     pub oidc: Oidc,
@@ -71,6 +76,7 @@ pub struct Settings {
     pub frontend: Frontend,
     pub cors: Cors,
     pub members: Members,
+    pub backend: Backend,
 }
 
 impl Settings {

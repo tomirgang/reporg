@@ -133,9 +133,8 @@ async fn oidc_success(
         }
     };
 
-    Identity::login(&request.extensions(), username.into())?;
+    Identity::login(&request.extensions(), user.email.clone())?;
 
-    session.insert("roles", user.get_roles_list())?;
     session.insert("user", user)?;
 
     Ok(HttpResponse::Found()
@@ -144,8 +143,14 @@ async fn oidc_success(
 }
 
 #[get("/logout")]
-async fn logout(user: Identity, data: web::Data<AppState>) -> impl Responder {
+async fn logout(
+    user: Identity,
+    data: web::Data<AppState>,
+    session: Session,
+) -> impl Responder {
     user.logout();
+    session.clear();
+
     HttpResponse::Found()
         .append_header((header::LOCATION, data.url_config.logout_success.clone()))
         .finish()

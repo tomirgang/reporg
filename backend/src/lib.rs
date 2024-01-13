@@ -40,8 +40,6 @@ pub struct AppState {
     pub settings: Settings,
 }
 
-
-
 pub async fn run(
     listener: TcpListener,
     redis: RedisSessionStore,
