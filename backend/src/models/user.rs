@@ -3,6 +3,7 @@ use sea_orm::*;
 use serde::{Deserialize, Serialize};
 use crate::entities::user;
 use crate::error::ReporgError;
+use crate::utils::filter_user_by_role;
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
@@ -85,22 +86,34 @@ impl User {
     pub async fn list(
         limit: u64,
         db: &DatabaseConnection,
+        roles: &Option<Vec<Role>>
     ) -> Result<Vec<User>, ReporgError> {
         let users: Vec<user::Model> = user::Entity::find().limit(limit).all(db).await
         .map_err(|e| ReporgError::from(&e))?;
 
-        User::from_list(users)
+        let users = User::from_list(users)?;
+
+        Ok(match roles {
+            Some(roles) => filter_user_by_role(users, roles),
+            None => users,
+        })
     }
 
     pub async fn page(
         offset: u64,
         limit: u64,
         db: &DatabaseConnection,
+        roles: &Option<Vec<Role>>
     ) -> Result<Vec<User>, ReporgError> {
         let users: Vec<user::Model> = user::Entity::find().offset(offset).limit(limit).all(db).await
         .map_err(|e| ReporgError::from(&e))?;
 
-        User::from_list(users)
+        let users = User::from_list(users)?;
+
+        Ok(match roles {
+            Some(roles) => filter_user_by_role(users, roles),
+            None => users,
+        })
     }
 
     pub async fn update(
@@ -387,7 +400,7 @@ mod tests {
         let (_, _) = dummy_user(&db).await;
         let (_, _) = dummy_user_with_email("john.doe@example.com", &db).await;
 
-        match User::list(100, &db).await {
+        match User::list(100, &db, &None).await {
             Ok(users) => assert_eq!(users.len(), 2),
             Err(e) => panic!("{}", e),
         }
@@ -400,7 +413,7 @@ mod tests {
         let (_, user_obj) = dummy_user_with_email("john.doe@example.com", &db).await;
         let (_, _) = dummy_user_with_email("jim.doe@example.com", &db).await;
 
-        match User::page(1, 1, &db).await {
+        match User::page(1, 1, &db, &None).await {
             Ok(users) => {
                 assert_eq!(users.len(), 1);
                 assert_eq!(user_obj.id, users[0].id);

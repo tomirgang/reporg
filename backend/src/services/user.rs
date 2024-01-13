@@ -1,6 +1,7 @@
 use crate::models::user::User;
 use crate::permissions::{Role, check_permissions};
 use crate::AppState;
+use crate::utils::roles_to_list;
 use actix_identity::Identity;
 use actix_session::Session;
 use actix_web::error::{ErrorForbidden, ErrorInternalServerError};
@@ -125,6 +126,7 @@ async fn tester_login(
 pub struct UserList {
     offset: Option<u64>,
     limit: Option<u64>,
+    roles: Option<i32>,
 }
 
 #[get("/list")]
@@ -134,7 +136,7 @@ async fn list(
     _user: Identity, // require user login
     session: Session,
 ) -> actix_web::Result<impl Responder> {
-    check_permissions(vec![Role::Organizer, Role::Admin, Role::Supporter], session)?;
+    check_permissions(vec![Role::Organizer, Role::Admin], session)?;
 
     let limit = match params.limit {
         Some(l) => l,
@@ -146,7 +148,11 @@ async fn list(
         None => 0,
     };
 
-    let users = User::page(offset, limit, &state.db).await
+    let roles = match params.roles {
+        Some(r) => Some(roles_to_list(r)),
+        None => None,
+    };
+    let users = User::page(offset, limit, &state.db, &roles).await
     .map_err(ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(&users))

@@ -88,7 +88,7 @@ async fn tester_login_session_stored() {
 #[tokio::test]
 async fn user_list_works() {
     let app = common::spawn_app().await;
-    let client = login(&app, "Supporter").await;
+    let client = login(&app, "Organizer").await;
 
     let response = client
         .get(&format!("{}/api/user/list", &app.address))
@@ -101,4 +101,28 @@ async fn user_list_works() {
     let content = response.text().await.expect("Getting body failed!");
 
     let _users: Vec<User> = serde_json::from_str(&content).expect("Parsing body failed!");
+}
+
+#[tokio::test]
+async fn user_list_is_protected() {
+    let app = common::spawn_app().await;
+    let client = login(&app, "Guest").await;
+
+    let response = client
+        .get(&format!("{}/api/user/list", &app.address))
+        .send()
+        .await
+        .expect("Failed to execute request.");
+
+    assert_eq!(response.status(), 403);
+
+    let client = login(&app, "Supporter").await;
+
+    let response = client
+        .get(&format!("{}/api/user/list", &app.address))
+        .send()
+        .await
+        .expect("Failed to execute request.");
+
+    assert_eq!(response.status(), 403);
 }

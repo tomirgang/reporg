@@ -5,6 +5,7 @@ pub mod settings;
 pub mod error;
 mod migrator;
 pub mod entities;
+pub mod utils;
 
 use crate::services::cafe::{create_cafe, future_cafes};
 use crate::services::login::{logout, oidc_init, oidc_success};
