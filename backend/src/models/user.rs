@@ -217,6 +217,24 @@ pub trait Roles {
     fn set_guest(&mut self, value: bool) {
         self.set_role(Role::Admin, value);
     }
+
+    fn get_roles_list(&self) -> Vec<Role> {
+        let mut roles = Vec::new();
+        if self.is_admin() {
+            roles.push(Role::Admin);
+        }
+        if self.is_organizer() {
+            roles.push(Role::Organizer);
+        }
+        if self.is_supporter() {
+            roles.push(Role::Supporter);
+        }
+        if self.is_guest() {
+            roles.push(Role::Guest);
+        }
+
+        roles
+    }
 }
 
 impl Roles for User {

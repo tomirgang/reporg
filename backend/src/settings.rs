@@ -58,6 +58,11 @@ pub struct Cors {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct Members {
+    pub admin: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub database: Database,
     pub oidc: Oidc,
@@ -65,6 +70,7 @@ pub struct Settings {
     pub log: Log,
     pub frontend: Frontend,
     pub cors: Cors,
+    pub members: Members,
 }
 
 impl Settings {
@@ -72,7 +78,7 @@ impl Settings {
         dotenv().ok();
 
         let s = Config::builder()
-            .add_source(Environment::with_prefix("REPORG").separator("_"))
+            .add_source(Environment::with_prefix("REPORG").separator("_").list_separator(" "))
             .build()?;
 
         s.try_deserialize()

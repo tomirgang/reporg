@@ -1,5 +1,4 @@
-use crate::models::user::{NewUser, User};
-use crate::permissions::Role;
+use crate::models::user::{NewUser, User, Roles};
 use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
@@ -125,6 +124,10 @@ async fn oidc_success(
         Some(user) => user,
         None => {
             let mut new_user = NewUser::new(&username, &email, None);
+            new_user.set_supporter(true);
+            if email == data.settings.members.admin {
+                new_user.set_admin(true);
+            }
             new_user.save(&data.db).await
             .map_err(ErrorInternalServerError)?
         }
@@ -132,7 +135,7 @@ async fn oidc_success(
 
     Identity::login(&request.extensions(), username.into())?;
 
-    session.insert("roles", vec![Role::Supporter])?;
+    session.insert("roles", user.get_roles_list())?;
     session.insert("user", user)?;
 
     Ok(HttpResponse::Found()
