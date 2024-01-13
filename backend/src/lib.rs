@@ -8,7 +8,7 @@ pub mod entities;
 
 use crate::services::cafe::{create_cafe, future_cafes};
 use crate::services::login::{logout, oidc_init, oidc_success};
-use crate::services::user::{tester_login, user_index};
+use crate::services::user::{tester_login, user_index, list};
 use crate::settings::Settings;
 use crate::migrator::Migrator;
 use sea_orm_migration::MigratorTrait;
@@ -101,7 +101,8 @@ pub async fn run(
                     .service(
                         web::scope("/user")
                             .service(user_index)
-                            .service(tester_login),
+                            .service(tester_login)
+                            .service(list),
                     ),
             )
             .service(logout)

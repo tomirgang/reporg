@@ -1,4 +1,5 @@
-use crate::permissions::Role;
+use crate::models::user::User;
+use crate::permissions::{Role, check_permissions};
 use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
@@ -118,4 +119,35 @@ async fn tester_login(
     Ok(HttpResponse::Found()
         .append_header((header::LOCATION, "/api/user/"))
         .finish())
+}
+
+#[derive(Deserialize, Debug)]
+pub struct UserList {
+    offset: Option<u64>,
+    limit: Option<u64>,
+}
+
+#[get("/list")]
+async fn list(
+    state: web::Data<AppState>,
+    params: web::Query<UserList>,
+    _user: Identity, // require user login
+    session: Session,
+) -> actix_web::Result<impl Responder> {
+    check_permissions(vec![Role::Organizer, Role::Admin, Role::Supporter], session)?;
+
+    let limit = match params.limit {
+        Some(l) => l,
+        None => 50,
+    };
+
+    let offset = match params.offset {
+        Some(o) => o,
+        None => 0,
+    };
+
+    let users = User::page(offset, limit, &state.db).await
+    .map_err(ErrorInternalServerError)?;
+
+    Ok(HttpResponse::Ok().json(&users))
 }

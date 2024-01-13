@@ -1,8 +1,7 @@
 mod common;
 
-use backend::settings::Settings;
+use backend::{settings::Settings, models::user::User};
 use common::login;
-use log::debug;
 
 #[tokio::test]
 async fn tester_login_admin_ok() {
@@ -83,7 +82,23 @@ async fn tester_login_session_stored() {
 
     let content = response.text().await.expect("Getting body failed!");
 
-    debug!("{}", content);
-
     assert!(content.contains("Organizer"));
+}
+
+#[tokio::test]
+async fn user_list_works() {
+    let app = common::spawn_app().await;
+    let client = login(&app, "Supporter").await;
+
+    let response = client
+        .get(&format!("{}/api/user/list", &app.address))
+        .send()
+        .await
+        .expect("Failed to execute request.");
+
+    assert!(response.status().is_success());
+
+    let content = response.text().await.expect("Getting body failed!");
+
+    let _users: Vec<User> = serde_json::from_str(&content).expect("Parsing body failed!");
 }

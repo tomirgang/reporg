@@ -15,7 +15,6 @@ pub struct Cafe {
 
 impl Cafe {
     fn from(model: cafe::Model) -> Result<Cafe, ReporgError> {
-        println!("Date form DB: {:?}", &model.date);
         let date = NaiveDateTime::parse_from_str(&model.date, "%Y-%m-%d %H:%M:%S")
         .map_err(|e| ReporgError::from(&e))?;
 
@@ -120,8 +119,7 @@ impl Cafe {
         db: &DatabaseConnection,
     ) -> Result<Cafe, ReporgError> {
         let date = new_values.date.to_string();
-        println!("Save date: {:?}", date);
-
+        
         let cafe = cafe::ActiveModel {
             id: ActiveValue::Set(self.id),
             location: ActiveValue::Set(new_values.location.clone()),
