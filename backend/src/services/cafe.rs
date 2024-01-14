@@ -10,8 +10,7 @@ use log::debug;
 
 #[get("/")]
 pub async fn future_cafes(state: web::Data<AppState>) -> actix_web::Result<impl Responder> {
-    let cafes = Cafe::future_cafes(&state.db).await
-    .map_err(error::ErrorInternalServerError)?;
+    let cafes = Cafe::future_cafes(&state.db).await?;
 
     Ok(HttpResponse::Ok().json(&cafes))
 }
@@ -47,8 +46,7 @@ pub async fn create_cafe(
         Ok(date) => {
             let mut new_cafe = NewCafe::new(&location, &address, date);
 
-            let cafe = new_cafe.save(&state.db).await
-            .map_err(error::ErrorInternalServerError)?;
+            let cafe = new_cafe.save(&state.db).await?;
 
             let response = HttpResponse::Ok().json(&cafe);
 

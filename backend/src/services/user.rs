@@ -3,9 +3,9 @@ use crate::permissions::{Role, check_permissions};
 use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::error::{ErrorForbidden, ErrorInternalServerError, ErrorNotFound};
+use actix_web::error::{ErrorForbidden, ErrorNotFound};
 use actix_web::http::header;
-use actix_web::{get, web, HttpMessage, HttpRequest, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpMessage, HttpRequest, HttpResponse, Responder};
 use log::info;
 use serde::{Deserialize, Serialize};
 
@@ -117,20 +117,17 @@ async fn tester_login(
         return Err(ErrorForbidden("Invalid role!"));
     };
 
-    let u = User::find_by_email("tester@example.com", &state.db).await
-    .map_err(ErrorInternalServerError)?;
+    let u = User::find_by_email("tester@example.com", &state.db).await?;
 
     let u = match u {
         Some(mut u) => {
             u.set_roles(role as i32);
-            u.save(&state.db).await
-            .map_err(ErrorInternalServerError)?
+            u.save(&state.db).await?
         },
         None => {
             let mut new_user = NewUser::new("Tester", "tester@example.com", None);
             new_user.set_roles(role as i32);
-            new_user.save(&state.db).await
-            .map_err(ErrorInternalServerError)?
+            new_user.save(&state.db).await?
         }
     };
     
@@ -176,8 +173,7 @@ async fn list(
         None => None,
     };
 
-    let users = User::page(offset, limit, &state.db, roles).await
-    .map_err(ErrorInternalServerError)?;
+    let users = User::page(offset, limit, &state.db, roles).await?;
 
     Ok(HttpResponse::Ok().json(&users))
 }
@@ -209,11 +205,76 @@ async fn user(
         }
     }
 
-    let user = User::find(path.user_id, &state.db).await
-    .map_err(|e| ErrorInternalServerError(e))?;
+    let user = User::find(path.user_id, &state.db).await?;
 
     match user {
         Some(u) => Ok(HttpResponse::Ok().json(&u)),
         None => Err(ErrorNotFound("No user with this ID!")),
     }
+}
+
+#[post("/update")]
+pub async fn create_cafe(
+    state: web::Data<AppState>,
+    user_data: web::Form<User>,
+    _user: Identity, // require user login
+    session: Session,
+) -> actix_web::Result<impl Responder> {
+    let actix_web::web::Form(user_data) = user_data;
+
+    // get user
+    let u = session.get::<User>("user")?;
+    let u = match u {
+        Some(u) => u,
+        None => return Err(ErrorForbidden("No user found!")),
+    };
+    // check if user is allowed to view the details
+    let allowed = u.id == user_data.id;
+    if !allowed {
+        match check_permissions(Role::Organizer as i32 | Role::Admin as i32, session) {
+            Ok(_) => {},
+            Err(e) => return Err(e),
+        }
+    }
+    // get old user data
+    let old_user = User::find(user_data.id, &state.db).await?;
+    let old_user = match old_user {
+        Some(o) => o,
+        None => return Err(ErrorForbidden("No user found!")),
+    };
+    // check if changes are allowed
+    if user_data.email != old_user.email {
+        return Err(ErrorForbidden("Email is not allowed to change!"));
+    }
+    if user_data.roles != old_user.roles  && !u.is_admin(){
+        return Err(ErrorForbidden("Only admins can change user roles!"));
+    }
+
+    log::debug!("[user.update] new user data: {:?}", &user_data);
+
+    let modified_user = user_data.save(&state.db).await?;
+    
+    Ok(HttpResponse::Ok().json(modified_user))
+}
+
+#[get("/{user_id}/delete")]
+async fn delete(
+    state: web::Data<AppState>,
+    path: web::Path<UserDetail>,
+    _user: Identity, // require user login
+    session: Session,
+) -> actix_web::Result<impl Responder> {
+    // get user
+    let u = session.get::<User>("user")?;
+    let u = match u {
+        Some(u) => u,
+        None => return Err(ErrorForbidden("No user found!")),
+    };
+    if u.id != path.user_id {
+        return Err(ErrorForbidden("No sufficent permissions!"));
+    }
+
+    let _result = u.delete(&state.db).await?;
+
+    Ok(HttpResponse::Ok())
 }

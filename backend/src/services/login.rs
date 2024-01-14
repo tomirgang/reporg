@@ -2,7 +2,7 @@ use crate::models::user::{NewUser, User, Roles};
 use crate::AppState;
 use actix_identity::Identity;
 use actix_session::Session;
-use actix_web::error::{ErrorBadRequest, ErrorInternalServerError};
+use actix_web::error::ErrorBadRequest;
 use actix_web::http::header;
 use actix_web::{get, web, HttpMessage, HttpRequest, HttpResponse, Responder};
 use log::debug;
@@ -117,8 +117,7 @@ async fn oidc_success(
         .ok_or_else(|| ErrorBadRequest("Providing an e-mail address is mandatory!"))?;
 
     let mail = email.clone();
-    let user: Option<User> = User::find_by_email(&mail, &data.db).await
-        .map_err(ErrorInternalServerError)?;
+    let user: Option<User> = User::find_by_email(&mail, &data.db).await?;
 
     let user = match user {
         Some(user) => user,
@@ -128,8 +127,7 @@ async fn oidc_success(
             if email == data.settings.members.admin {
                 new_user.set_admin(true);
             }
-            new_user.save(&data.db).await
-            .map_err(ErrorInternalServerError)?
+            new_user.save(&data.db).await?
         }
     };
 

@@ -5,7 +5,7 @@ use crate::entities::user;
 use crate::error::ReporgError;
 use crate::utils::filter_user_by_role;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct User {
     pub id: i32,
     pub name: String,
@@ -152,7 +152,7 @@ impl User {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NewUser {
     pub name: String,
     pub email: String,
@@ -196,7 +196,7 @@ impl NewUser {
 
         match User::find(res.last_insert_id, db).await? {
             Some(c) => Ok(c),
-            None => Err(ReporgError::new(&format!("[NewUser.save] user with ID {} not found.", res.last_insert_id))),
+            None => Err(ReporgError::new(&format!("[NewUser.save] user with ID {} not found.", res.last_insert_id), None)),
         }
     }
 }

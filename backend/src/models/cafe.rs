@@ -162,7 +162,7 @@ impl NewCafe {
 
         match Cafe::find(res.last_insert_id, db).await? {
             Some(c) => Ok(c),
-            None => Err(ReporgError::new(&format!("[NewCafe.save] cafe with ID {} not found.", res.last_insert_id))),
+            None => Err(ReporgError::new(&format!("[NewCafe.save] cafe with ID {} not found.", res.last_insert_id), None)),
         }
     }
 }
